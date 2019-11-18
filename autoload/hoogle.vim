@@ -16,7 +16,7 @@ endif
 let s:file = get(g:, "hoogle_tmp_file", "/tmp/hoogle-query.json")
 let s:hoogle_path = get(g:, "hoogle_path", "hoogle")
 let s:header = get(g:, "hoogle_fzf_header", printf("\x1b[35m%s\x1b[m", 'enter') . ' - research with query :: ' . printf("\x1b[35m%s\x1b[m", 'alt-s') . " - source code\n ")
-let s:fzf_preview = get(g:, "hoogle_path", "right:60%:wrap")
+let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
 let s:bin_dir = expand('<sfile>:h:h') . '/bin/'
 let s:bin = {
       \ 'preview': s:bin_dir . 'preview.sh',
@@ -139,7 +139,7 @@ function! s:Handler(lines) abort
       call feedkeys('i', 'n')
     endif
   elseif keypress ==? 'alt-s'
-    let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s", item, "/tmp/hoogle-query.json"))
+    let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s", item, s:file))
     call s:PreviewSourceCode("hoogle", link)
   endif
 endfunction
