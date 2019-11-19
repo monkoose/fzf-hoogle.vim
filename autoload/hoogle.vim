@@ -141,14 +141,15 @@ function! s:Handler(lines) abort
   elseif keypress ==? 'alt-s'
     let item = a:lines[2]
     let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s", item, s:file))
-    call s:PreviewSourceCode("hoogle", link)
+    call s:PreviewSourceCode(link)
   endif
 endfunction
 
-function! s:PreviewSourceCode(name, link) abort
+function! s:PreviewSourceCode(link) abort
   let response = "-- There is no source for this item"
   let linenr = 1
   let preview_height = 4
+  let module_name = 'hoogle'
   if a:link =~ '#'
     let [page, anchor] = split(a:link, '#')
     let source_head = split(page, "/docs/")[0]
@@ -163,13 +164,14 @@ function! s:PreviewSourceCode(name, link) abort
       let linenr = substitute(response, '.*name="line-\(\d\+\)".*name="' . source_anchor . '".*', '\1', "")
       let response = s:HtmlDecode(response)
       let preview_height = s:preview_height
+      let module_name = substitute(source_tail, '^src/\(.*\).html#.*', '\1', "")
     endif
   endif
   pclose
   let open_preview = 'silent! pedit +setlocal\ ' .
                 \ 'buftype=nofile\ nobuflisted\ ' .
                 \ 'noswapfile\ bufhidden=wipe\ ' .
-                \ 'filetype=hoogle\ syntax=haskell ' . a:name
+                \ 'filetype=hoogle\ syntax=haskell ' . module_name
   execute open_preview
   execute "normal! \<C-w>P"
   nnoremap <silent><buffer> q <C-w>P:pclose<CR>
