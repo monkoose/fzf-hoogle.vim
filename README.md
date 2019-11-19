@@ -1,6 +1,6 @@
 # fzf-hoogle.vim
 
-neovim and vim plugin for previewing hoogle results with fzf
+(neo)vim plugin for previewing hoogle results with fzf
 ![fzf-hoogle.vim in action](https://github.com/monkoose/fzf-hoogle-images/blob/master/fzf-hoogle-action.gif?raw=true)
 
 ## Requirements
