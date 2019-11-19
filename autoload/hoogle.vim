@@ -215,6 +215,11 @@ function! hoogle#floatwindow(lines, columns) abort
 endfunction
 
 function! hoogle#run(query, fullscreen) abort
+  if strdisplaywidth(a:query) > 30
+    let prompt = a:query[:27] . '.. > '
+  else
+    let prompt = a:query . ' > '
+  endif
   let options = {
       \ 'sink*': function('s:Handler'),
       \ 'source': s:Source(s:hoogle_path, s:file, a:query),
@@ -227,7 +232,7 @@ function! hoogle#run(query, fullscreen) abort
             \ '--exact',
             \ '--inline-info',
             \ '--prompt',
-            \ 'hoogle ' . a:query . '> ',
+            \ prompt,
             \ '--header', s:header,
             \ '--preview', shellescape(s:bin.preview) . ' ' . s:file . ' {} {n}',
             \ '--preview-window', s:fzf_preview,
