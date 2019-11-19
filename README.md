@@ -51,7 +51,7 @@ augroup END
 
 ## Options
 
- - `g:loaded_hoogle` - deactivates plugin. Default: 1
+ - `g:loaded_hoogle` - any value deactivates plugin.
  - `g:hoogle_path` - path to hoogle executable. String. Default: "hoogle"
  - `g:hoogle_preview_height` - change height of source code preview window. Int. Default: 22
  - `g:hoogle_fzf_window` - change fzf window. One key dictionary. Default: float window in neovim and `{'down': '50%'}` in vim
