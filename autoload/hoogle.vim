@@ -154,7 +154,7 @@ function! s:PreviewSourceCode(name, link) abort
     let source_head = split(page, "/docs/")[0]
     echo "Downloading source file. Please wait..."
     let source_tail = system("curl -sL " . page . " | grep -oP 'id=\"". trim(anchor) .
-          \ "\".*?class=\"link\"' | sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'")
+          \ "\".*?class=\"link\"' | head -n 1 | sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'")
     let source_link = trim(source_head . "/docs/" . source_tail)
     if source_link =~ '#'
       let [source_page, source_anchor] = split(source_link, '#')
