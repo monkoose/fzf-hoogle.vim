@@ -10,8 +10,9 @@ neovim and vim plugin for previewing hoogle results with fzf
  - [hoogle](https://github.com/ndmitchell/hoogle)
  - [jq](https://github.com/stedolan/jq) - for processing json
  - curl - for retrieving source code
- - sed, awk, tee
-Tested only on linux
+ - sed, awk, tee, head - should be in any linux distro
+ 
+**Tested only on linux**.
 
 ## Installation
 
