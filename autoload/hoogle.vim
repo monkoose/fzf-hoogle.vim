@@ -118,19 +118,14 @@ endfunction
 " ----------------------------------------------------------
 
 function! s:Handler(lines) abort
-  " exit if empty
+  " exit if empty for <Esc> hit
   if a:lines == [] || a:lines == ['','','']
     return
   endif
 
-  let query    = a:lines[0]
   let keypress = a:lines[1]
-  " sometimes fzf doesn't return current line string on `enter`
-  " there is workaround for this
-  if len(a:lines) > 2
-    let item = a:lines[2]
-  endif
   if keypress ==? 'enter'
+    let query = a:lines[0]
     let new_search = 'Hoogle ' . query
     execute new_search
     " fzf on neovim for some reason can't start in insert mode from previous fzf window
@@ -139,6 +134,7 @@ function! s:Handler(lines) abort
       call feedkeys('i', 'n')
     endif
   elseif keypress ==? 'alt-s'
+    let item = a:lines[2]
     let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s", item, s:file))
     call s:PreviewSourceCode("hoogle", link)
   endif
