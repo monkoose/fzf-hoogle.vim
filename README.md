@@ -50,14 +50,15 @@ augroup END
 
 ## Options
 
- - `g:loaded_hoogle` - deactivates plugin. Default: 1    
+ - `g:loaded_hoogle` - deactivates plugin. Default: 1
  - `g:hoogle_path` - path to hoogle executable. String. Default: "hoogle"
  - `g:hoogle_preview_height` - change height of source code preview window. Int. Default: 22
  - `g:hoogle_fzf_window` - change fzf window. One key dictionary. Default: float window in neovim and `{'down': '50%'}` in vim
  - `g:hoogle_fzf_header` - change fzf window header. String. Default: help info
  - `g:hoogle_fzf_preview` - change fzf preview split. String. Default: "right:60%:wrap"
  - `g:hoogle_tmp_file` - change location of temporary file. String. Default: `/tmp/hoogle-query.json`
- 
+ - `g:hoogle_count` - restrict fzf count lines by this number. Int. Default: 1000
+
 ## TODO
 
  - Make it less error prone

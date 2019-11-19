@@ -5,6 +5,7 @@ set cpo&vim
 " Options
 " ----------------------------------------------------------
 
+let s:hoogle_path = get(g:, "hoogle_path", "hoogle")
 let s:preview_height = get(g:, "hoogle_preview_height", 22)
 
 if has('nvim')
@@ -13,10 +14,11 @@ else
   let s:window = get(g:, "hoogle_fzf_window", {"down": "50%"})
 endif
 
+let s:count = get(g:, "hoogle_count", 1000)
 let s:file = get(g:, "hoogle_tmp_file", "/tmp/hoogle-query.json")
-let s:hoogle_path = get(g:, "hoogle_path", "hoogle")
 let s:header = get(g:, "hoogle_fzf_header", printf("\x1b[35m%s\x1b[m", 'enter') . ' - research with query :: ' . printf("\x1b[35m%s\x1b[m", 'alt-s') . " - source code\n ")
 let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
+
 let s:bin_dir = expand('<sfile>:h:h') . '/bin/'
 let s:bin = {
       \ 'preview': s:bin_dir . 'preview.sh',
@@ -180,7 +182,7 @@ function! s:Source(hoogle, file, query) abort
 let add_path = printf("jq -c '. | %s'", 'setpath(["fzfhquery"]; if .module.name == null then .item else .module.name + " " + .item end)')
 let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null"
 return printf(
-      \ "%s --json %s 2> /dev/null | %s | head -n 1000 | %s | " .
+      \ "%s --json %s 2> /dev/null | %s | head -n " . s:count ." | %s | " .
           \ "awk -F 'fzfhquery' '!seen[$NF]++' | tee %s | jq -r '.fzfhquery' | " .
           \ "awk '{ if ($1 == \"package\" || $1 == \"module\") { printf \"\033[33m\"$1\"\033[0m\"; $1=\"\"; print $0}" .
               \ "else { printf \"\033[32m\"$1\"\033[0m\"; $1=\"\"; print $0 }}'",
