@@ -18,7 +18,7 @@ Tested only on linux
 Using [vim-plug](https://github.com/junegunn/vim-plug)
 ```
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-Plug 'junegunn/fzf.vim'
+
 Plug 'monkoose/fzf-hoogle.vim'
 ```
 Or use any other plugin manager. I bet you know it better then I'm.
@@ -33,11 +33,18 @@ For previewing source code use `alt-s`. Retrieving source code is synchronous pr
 
 Inside preview window with source code you can hit `q` to close it.
 
-You can open `:Hoogle` appended with word under the cursor with this command. Use key combination that suitable for you. In my config it is `<space>hh:
+You can open `:Hoogle` appended with word under the cursor with this command. Use key combination that suitable for you. In my config it is `\<space\>hh:
 ```
 augroup HoogleMaps
   autocmd!
   autocmd FileType haskell nnoremap <buffer> <space>hh :Hoogle <c-r>=expand("<cword>")<CR><CR>
+augroup END
+```
+Or you can set it as `keywordprg` and open fzf-hoogle window with `K`:
+```
+augroup HoogleMaps
+  autocmd!
+  autocmd FileType haskell setlocal keywordprg=:Hoogle
 augroup END
 ```
 
