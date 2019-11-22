@@ -15,15 +15,22 @@ else
 endif
 
 let s:count = get(g:, "hoogle_count", 1000)
-let s:file = get(g:, "hoogle_tmp_file", "/tmp/hoogle-query.json")
 let s:header = get(g:, "hoogle_fzf_header",
-      \ printf("\x1b[35m%s\x1b[m", 'enter') . ' - research with query :: ' .
-      \ printf("\x1b[35m%s\x1b[m", 'alt-s') . " - source code\n ")
+      \ printf("\x1b[35m%s\x1b[m", 'enter') .. ' - research with query :: ' ..
+      \ printf("\x1b[35m%s\x1b[m", 'alt-s') .. " - source code\n ")
 let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
+" Cache only documentation pages, because source code pages rarely exceed 500K
+let s:allow_cache = get(g:, "hoogle_allow_cache", 1)
+let s:cache_dir = get(g:, "hoogle_cache_dir", $HOME .. "/.cache/fzf-hoogle/")
+if !isdirectory(s:cache_dir)
+  call mkdir(s:cache_dir, "p")
+endif
+let s:file = s:cache_dir .. 'query.json'
+let s:cachable_size = get(g:, "hoogle_cachable_size", 500) * 1000
 
-let s:bin_dir = expand('<sfile>:h:h') . '/bin/'
+let s:bin_dir = expand('<sfile>:h:h') .. '/bin/'
 let s:bin = {
-      \ 'preview': s:bin_dir . 'preview.sh',
+      \ 'preview': s:bin_dir .. 'preview.sh',
       \ }
 
 " ----------------------------------------------------------
@@ -96,6 +103,7 @@ let s:html_entities = {
       \ 'spades':  9824, 'clubs':   9827, 'hearts':  9829, 'diams':   9830,
       \ 'apos':      39}
 
+
 function! s:HtmlDecode(str) abort
   let str = substitute(a:str, "<[^>]*>", "", "g")
   let str = substitute(str,'\c&#\%(0*38\|x0*26\);','&amp;','g')
@@ -109,10 +117,12 @@ function! s:HtmlDecode(str) abort
   return substitute(str,'\c&amp;','\&','g')
 endfunction
 
+
 function! s:UrlDecode(str) abort
   let str = substitute(substitute(substitute(a:str,'%0[Aa]\n$','%0A',''),'%0[Aa]','\n','g'),'+',' ','g')
   return iconv(substitute(str,'%\(\x\x\)','\=nr2char("0x".submatch(1))','g'), 'utf-8', 'latin1')
 endfunction
+
 
 function! s:UrlEencode(str) abort
   return substitute(iconv(a:str, 'latin1', 'utf-8'),'[^A-Za-z0-9_.~-]','\="%".printf("%02X",char2nr(submatch(0)))','g')
@@ -131,7 +141,8 @@ function! s:Handler(lines) abort
   let keypress = a:lines[1]
   if keypress ==? 'enter'
     let query = a:lines[0]
-    let new_search = 'Hoogle ' . query
+    " TODO: respect <bang> argument in Hoogle command
+    let new_search = 'Hoogle ' .. query
     execute new_search
     " fzf on neovim for some reason can't start in insert mode from previous fzf window
     " there is workaround for this
@@ -145,61 +156,127 @@ function! s:Handler(lines) abort
   endif
 endfunction
 
-function! s:PreviewSourceCode(link) abort
-  let response = "-- There is no source for this item"
-  let linenr = 1
-  let preview_height = 4
-  let module_name = 'hoogle'
-  if a:link =~ '#'
-    let [page, anchor] = split(a:link, '#')
-    let source_head = split(page, "/docs/")[0]
-    echo "Downloading source file. Please wait..."
-    let source_tail = system("curl -sL " . page . " | grep -oP 'id=\"". trim(anchor) .
-          \ "\".*?class=\"link\"' | head -n 1 | sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'")
-    let source_link = trim(source_head . "/docs/" . source_tail)
-    if source_link =~ '#'
-      let [source_page, source_anchor] = split(source_link, '#')
-      let source_anchor = s:UrlEencode(s:UrlDecode(source_anchor))
-      let response = system("curl -sL " . source_page)
-      let linenr = substitute(response, '.*name="line-\(\d\+\)".*name="' . source_anchor . '".*', '\1', "")
-      let response = s:HtmlDecode(response)
-      let preview_height = s:preview_height
-      let module_name = substitute(source_tail, '^src/\(.*\).html#.*', '\1', "")
-    endif
+
+function! s:Connected() abort
+  call system('curl -sI google.com')
+  return !v:shell_error
+endfunction
+
+
+function! s:GetSourceTail(page, anchor, file_tail) abort
+  " A lot of trim() because system() produce unwanted NUL ^@ and some other space characters.
+  " Not sure if it is the best way to get rid of them
+  let anchor = trim(a:anchor)
+  let download_message = "Downloading source file. Please wait..."
+  let curl_get = "curl -sL " .. a:page .. " | "
+  let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
+  " Rarely there more then one link for anchor so more then one line from grep
+  let first_line = "| head -n 1 | "
+  let strip_to_link = "sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
+
+  if !s:allow_cache || a:page !~ '^http'
+    echo download_message
+    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
   endif
+
+  let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
+  let file_exists = file_path != ""
+  let page_headers = system("curl -sIL " .. a:page)
+  let content_size = substitute(page_headers, '.*Content-Length: \(\d\+\).*', '\1', "")
+  let etag = trim(substitute(page_headers, '.*ETag: "\(\w\+\)".*', '\1', ""))
+  let file_etag = substitute(file_path, '.*/\(\w\+\)==.*', '\1', "")
+
+  if file_exists && etag ==# file_etag
+    echo "Opening source file..."
+    return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
+  endif
+
+  echo download_message
+  if !file_exists && content_size < s:cachable_size
+    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
+  endif
+
+  let save_file  = "tee " .. s:cache_dir .. etag .. "==" .. a:file_tail .. " | "
+  return trim(system(curl_get .. save_file .. line_with_anchor .. first_line .. strip_to_link))
+endfunction
+
+
+function! s:Response(request) abort
+  let response = {}
+
+  if !s:Connected()
+    let response.text = '-- No internet connection'
+    return response
+  endif
+  " We can only get source link from request that have anchor
+  if a:request !~ '#'
+    return response
+  endif
+
+  let [page, anchor] = split(a:request, '#')
+  let [source_head, file_tail] = split(page, "/docs/")
+  let source_tail = s:GetSourceTail(page, anchor, file_tail)
+  let source_link = source_head .. "/docs/" .. source_tail
+  if source_link =~ '#'
+    let [source_page, source_anchor] = split(source_link, '#')
+    let source_anchor = s:UrlEencode(s:UrlDecode(source_anchor))
+    let text = system("curl -sL " .. source_page)
+    let response.linenr = substitute(text, '.*name="line-\(\d\+\)".*name="' .. source_anchor .. '".*', '\1', "")
+    let response.text = s:HtmlDecode(text)
+    let response.preview_height = s:preview_height
+    let response.module_name = substitute(source_tail, '^src/\(.*\).html#.*', '\1', "")
+  endif
+  return response
+endfunction
+
+
+function! s:PreviewSourceCode(link) abort
+  let response = s:Response(a:link)
+  let source_text = get(response, "text", "-- There is no source for this item")
+
   pclose
-  let open_preview = 'silent! pedit +setlocal\ ' .
-                \ 'buftype=nofile\ nobuflisted\ ' .
-                \ 'noswapfile\ bufhidden=wipe\ ' .
-                \ 'filetype=hoogle\ syntax=haskell ' . module_name
-  execute open_preview
+  execute 'silent! pedit +setlocal\ buftype=nofile\ nobuflisted\ ' ..
+          \ 'noswapfile\ bufhidden=wipe\ filetype=hoogle\ syntax=haskell ' ..
+          \ get(response, "module_name", "hoogle")
+
   execute "normal! \<C-w>P"
-  nnoremap <silent><buffer> q <C-w>P:pclose<CR>
-  execute "silent! 0put =response"
-  execute "resize " . preview_height
-  call cursor(linenr, 1)
+  execute "silent! 0put =source_text"
+  execute "resize " .. get(response, "preview_height", s:preview_height)
+  call cursor(get(response, "linenr", 1), 1)
   execute "normal z\<CR>"
   execute "redraw!"
+  nnoremap <silent><buffer> q <C-w>P:pclose<CR>
   setlocal cursorline
   setlocal nomodifiable
 endfunction
 
-function! s:Source(hoogle, file, query) abort
-let add_path = printf("jq -c '. | %s'",
-      \ 'setpath(["fzfhquery"]; if .module.name == null then .item else .module.name + " " + .item end)')
-let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null"
-return printf(
-      \ "%s --json %s 2> /dev/null | %s | head -n " . s:count ." | %s | " .
-          \ "awk -F 'fzfhquery' '!seen[$NF]++' | tee %s | jq -r '.fzfhquery' | " .
-          \ "awk '{ if ($1 == \"package\" || $1 == \"module\") { printf \"\033[33m\"$1\"\033[0m\"; $1=\"\"; print $0}" .
-          \ "else { printf \"\033[32m\"$1\"\033[0m\"; $1=\"\"; print $0 }}'",
-      \ a:hoogle,
-      \ shellescape(a:query),
-      \ jq_stream,
-      \ add_path,
-      \ a:file,
-      \ )
+
+function! s:Source(query) abort
+  " Can be one 2> /dev/null removed?
+  let hoogle = printf("%s --json %s 2> /dev/null | ", s:hoogle_path, shellescape(a:query))
+  let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null | "
+  let items_number = "head -n " .. s:count .. " | "
+  let add_path = "jq -c '. | setpath([\"fzfhquery\"]; if .module.name == null then .item else .module.name + \" \" + .item end)' | "
+  let remove_duplicates = "awk -F 'fzfhquery' '!seen[$NF]++' | "
+  let save_file = "tee " .. s:file .. " | "
+  let fzf_lines = "jq -r '.fzfhquery' | "
+  let awk_orange = "{ printf \"\033[33m\"$1\"\033[0m\"; $1=\"\"; print $0}"
+  let awk_green = "{ printf \"\033[32m\"$1\"\033[0m\"; $1=\"\"; print $0 }"
+  let colorize = "awk '{ if ($1 == \"package\" || $1 == \"module\") " .. awk_orange .. "else " .. awk_green .. "}'"
+
+  return hoogle .. jq_stream .. items_number .. add_path .. remove_duplicates .. save_file .. fzf_lines .. colorize
+
+  " return printf("%s | %s | %s | %s | %s | %s | %s| %s",
+  "               \ hoogle,
+  "               \ jq_stream,
+  "               \ items_number,
+  "               \ add_path,
+  "               \ remove_duplicates,
+  "               \ save_file,
+  "               \ fzf_lines,
+  "               \ colorize)
 endfunction
+
 
 function! hoogle#floatwindow(lines, columns) abort
   let v_pos = float2nr((&lines - a:lines) / 2)
@@ -216,15 +293,17 @@ function! hoogle#floatwindow(lines, columns) abort
   call nvim_open_win(buf, v:true, opts)
 endfunction
 
+
 function! hoogle#run(query, fullscreen) abort
   if strdisplaywidth(a:query) > 30
-    let prompt = a:query[:27] . '.. > '
+    let prompt = a:query[:27] .. '.. > '
   else
-    let prompt = a:query . ' > '
+    let prompt = a:query .. ' > '
   endif
+
   let options = {
       \ 'sink*': function('s:Handler'),
-      \ 'source': s:Source(s:hoogle_path, s:file, a:query),
+      \ 'source': s:Source(a:query),
       \ 'options': [
             \ '--no-multi',
             \ '--print-query',
@@ -233,19 +312,15 @@ function! hoogle#run(query, fullscreen) abort
             \ '--ansi',
             \ '--exact',
             \ '--inline-info',
-            \ '--prompt',
-            \ prompt,
+            \ '--prompt', prompt,
             \ '--header', s:header,
-            \ '--preview', shellescape(s:bin.preview) . ' ' . s:file . ' {} {n}',
+            \ '--preview', shellescape(s:bin.preview) .. ' ' .. s:file .. ' {} {n}',
             \ '--preview-window', s:fzf_preview,
             \ ]
       \ }
-    call extend(options, s:window)
-  call fzf#run(fzf#wrap(
-    \ 'hoogle',
-    \ options,
-    \ a:fullscreen
-    \ ))
+  call extend(options, s:window)
+
+  call fzf#run(fzf#wrap('hoogle', options, a:fullscreen ))
 endfunction
 
 " ----------------------------------------------------------
