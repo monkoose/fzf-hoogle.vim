@@ -1,6 +1,6 @@
 # fzf-hoogle.vim
 
-(neo)vim plugin for previewing hoogle results with fzf and preview source code
+(neo)vim plugin for previewing hoogle results with fzf and open source code
 ![fzf-hoogle.vim in action](https://github.com/monkoose/fzf-hoogle-images/blob/master/fzf-hoogle-action.gif?raw=true)
 
 ## Requirements
@@ -30,7 +30,10 @@ Just run `:Hoogle` command or append it with initial search like `:Hoogle >>=`.
 
 Inside fzf window use `enter` to research hoogle database with current query.
 
-For previewing source code use `alt-s`. Retrieving source code is synchronous process inside vim/neovim so open preview window for source that wasn't previously cached can take some time, please just be patient. Vim will hangs for this time. Maybe I will improve this behavior later with `curl --max-time` flag or asynchronous run of curl inside vim.
+For previewing source code use `alt-s`. Retrieving source code is synchronous process inside
+vim/neovim so open preview window for source that wasn't previously cached can take some time,
+please just be patient. Vim will hangs for this time. Maybe I will improve this behavior later with
+`curl --max-time` flag or asynchronous run of curl inside vim.
 
 Inside preview window with source code you can hit `q` to close it.
 
@@ -38,7 +41,8 @@ To open fzf window in new fullscreen tab just append command with exclamation ma
 Currently there is *known bug* for command appended with `!`  - refreshing query with `enter` run
 command without it.
 
-You can open `:Hoogle` appended with word under the cursor with this command. Use key combination that suitable for you. In my config it is `\<space\>hh:
+You can open `:Hoogle` appended with word under the cursor with this command. Use key combination that
+suitable for you. In my config it is `\<space\>hh:
 ```
 augroup HoogleMaps
   autocmd!
