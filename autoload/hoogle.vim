@@ -170,7 +170,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   let download_message = "Downloading source file. Please wait..."
   let curl_get = "curl -sL " .. a:page .. " | "
   let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
-  " Rarely there more then one link for anchor so more then one line from grep
+  " Sometimes there more then one link for anchor so more then one line from grep
   let first_line = "| head -n 1 | "
   let strip_to_link = "sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
 
@@ -263,18 +263,7 @@ function! s:Source(query) abort
   let awk_orange = "{ printf \"\033[33m\"$1\"\033[0m\"; $1=\"\"; print $0}"
   let awk_green = "{ printf \"\033[32m\"$1\"\033[0m\"; $1=\"\"; print $0 }"
   let colorize = "awk '{ if ($1 == \"package\" || $1 == \"module\") " .. awk_orange .. "else " .. awk_green .. "}'"
-
   return hoogle .. jq_stream .. items_number .. add_path .. remove_duplicates .. save_file .. fzf_lines .. colorize
-
-  " return printf("%s | %s | %s | %s | %s | %s | %s| %s",
-  "               \ hoogle,
-  "               \ jq_stream,
-  "               \ items_number,
-  "               \ add_path,
-  "               \ remove_duplicates,
-  "               \ save_file,
-  "               \ fzf_lines,
-  "               \ colorize)
 endfunction
 
 
