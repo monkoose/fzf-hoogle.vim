@@ -1,6 +1,6 @@
 # fzf-hoogle.vim
 
-(neo)vim plugin for previewing hoogle results with fzf
+(neo)vim plugin for previewing hoogle results with fzf and preview source code
 ![fzf-hoogle.vim in action](https://github.com/monkoose/fzf-hoogle-images/blob/master/fzf-hoogle-action.gif?raw=true)
 
 ## Requirements
@@ -33,6 +33,10 @@ Inside fzf window use `enter` to research hoogle database with current query.
 For previewing source code use `alt-s`. Retrieving source code is synchronous process inside vim/neovim and so open preview window with it can take some time, please just be patient. Maybe I will improve this behavior later.
 
 Inside preview window with source code you can hit `q` to close it.
+
+To open fzf window in new fullscreen tab just append command with exclamation mark `:Hoogle!`
+Currently there is *known bug* for command appended with `!`  - refreshing query with `enter` run
+command without it.
 
 You can open `:Hoogle` appended with word under the cursor with this command. Use key combination that suitable for you. In my config it is `\<space\>hh:
 ```
