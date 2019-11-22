@@ -30,7 +30,7 @@ Just run `:Hoogle` command or append it with initial search like `:Hoogle >>=`.
 
 Inside fzf window use `enter` to research hoogle database with current query.
 
-For previewing source code use `alt-s`. Retrieving source code is synchronous process inside vim/neovim and so open preview window with it can take some time, please just be patient. Maybe I will improve this behavior later.
+For previewing source code use `alt-s`. Retrieving source code is synchronous process inside vim/neovim so open preview window for source that wasn't previously cached can take some time, please just be patient. Vim will hangs for this time. Maybe I will improve this behavior later with `curl --max-time` flag or asynchronous run of curl inside vim.
 
 Inside preview window with source code you can hit `q` to close it.
 
