@@ -9,7 +9,7 @@
  - [fzf](https://github.com/stedolan/jq)
  - [hoogle](https://github.com/ndmitchell/hoogle)
  - [jq](https://github.com/stedolan/jq) - for processing json
- - curl - for retrieving source code
+ - [curl](https://github.com/curl/curl) - for retrieving source code
  - sed, awk, tee, head - should be in any linux distro
  
 **Tested only on linux**.
