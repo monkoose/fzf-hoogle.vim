@@ -67,7 +67,7 @@ augroup END
  - `g:hoogle_fzf_preview` - change fzf preview split. String. Default: `right:60%:wrap`
  - `g:hoogle_count` - restrict fzf count lines by this number. Int. Default: 1000
  - `g:hoogle_allow_cache` - activates/deactivates caching. Bool. Default: 1
- - `g:hoogle_cache_dir` - location of the cache directory, should end with slash. String. `/.cache/fzf-hoogle/`
+ - `g:hoogle_cache_dir` - location of the cache directory, should end with slash. String. `$HOME/.cache/fzf-hoogle/`
  - `g:hoogle_cachable_size` - cache only pages which size exceed this option. Cache only
    documentation pages, source pages rarely exceed 500K size. Size in kilobytes.
    Int. Default: 500
