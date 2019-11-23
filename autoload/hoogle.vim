@@ -182,17 +182,21 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
   let file_exists = file_path != ""
   let page_headers = system("curl -sIL " .. a:page)
-  let content_size = substitute(page_headers, '.*Content-Length: \(\d\+\).*', '\1', "")
   let etag = trim(substitute(page_headers, '.*ETag: "\(\w\+\)".*', '\1', ""))
-  let file_etag = substitute(file_path, '.*/\(\w\+\)==.*', '\1', "")
 
-  if file_exists && etag ==# file_etag
-    echo "Opening source file..."
-    return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
+  if file_exists
+    let file_etag = substitute(file_path, '.*/\(\w\+\)==.*', '\1', "")
+    if etag ==# file_etag
+      echo "Opening source file..."
+      return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
+    else
+      call delete(file_path)
+    endif
   endif
 
+  let content_size = substitute(page_headers, '.*Content-Length: \(\d\+\).*', '\1', "")
   echo download_message
-  if !file_exists && content_size < s:cachable_size
+  if content_size < s:cachable_size
     return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
   endif
 
