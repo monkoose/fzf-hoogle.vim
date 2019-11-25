@@ -206,6 +206,7 @@ endfunction
 
 
 function! s:Response(request) abort
+  echo "Locating source file..."
   let response = {}
 
   if !s:Connected()
