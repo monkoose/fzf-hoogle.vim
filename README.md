@@ -34,6 +34,9 @@ For previewing source code use `alt-s`. Retrieving source code is synchronous pr
 vim/neovim so open preview window for source that wasn't previously cached can take some time,
 please just be patient. Vim will hangs for this time. Maybe I will improve this behavior later with
 `curl --max-time` flag or asynchronous run of curl inside vim.
+Package and module items do not have link to source code, so `alt-s` should open default browser
+and link to package/module documentation. If it doesn't work (perhabs if you are on Mac), then
+change `g:hoogle_open_link` option to open links with cli tool.
 
 Inside preview window with source code you can hit `q` to close it.
 
@@ -61,16 +64,18 @@ augroup END
 
  - `g:loaded_hoogle` - any value deactivates plugin.
  - `g:hoogle_path` - path to hoogle executable. String. Default: `hoogle`
- - `g:hoogle_preview_height` - change height of source code preview window. Int. Default: 22
+ - `g:hoogle_preview_height` - change height of source code preview window. Int. Default: `22`
  - `g:hoogle_fzf_window` - change fzf window. One key dictionary. Default: float window in neovim and `{'down': '50%'}` in vim
  - `g:hoogle_fzf_header` - change fzf window header. String. Default: help info
  - `g:hoogle_fzf_preview` - change fzf preview split. String. Default: `right:60%:wrap`
  - `g:hoogle_count` - restrict fzf count lines by this number. Int. Default: 1000
- - `g:hoogle_allow_cache` - activates/deactivates caching. Bool. Default: 1
- - `g:hoogle_cache_dir` - location of the cache directory, should end with slash. String. `$HOME/.cache/fzf-hoogle/`
+ - `g:hoogle_open_link` - cli tool to open link in default browser. String. Default: `xdg-open` if
+   it is executable or blank string. Mac users just should change it to `open` and it should work.
+ - `g:hoogle_allow_cache` - activates/deactivates caching. Bool. Default: `1`
+ - `g:hoogle_cache_dir` - location of the cache directory, should end with slash. String. Default: `$HOME/.cache/fzf-hoogle/`
  - `g:hoogle_cachable_size` - cache only pages which size exceed this option. Cache only
    documentation pages, source pages rarely exceed 500K size. Size in kilobytes.
-   Int. Default: 500
+   Int. Default: `500`
 
 
 ## TODO

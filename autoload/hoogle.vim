@@ -19,6 +19,7 @@ let s:header = get(g:, "hoogle_fzf_header",
       \ printf("\x1b[35m%s\x1b[m", 'enter') .. ' - research with query :: ' ..
       \ printf("\x1b[35m%s\x1b[m", 'alt-s') .. " - source code\n ")
 let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
+let s:open_tool = get(g:, "hoogle_open_link", executable("xdg-open") ? "xdg-open" : "")
 " Cache only documentation pages, because source code pages rarely exceed 500K
 let s:allow_cache = get(g:, "hoogle_allow_cache", 1)
 let s:cache_dir = get(g:, "hoogle_cache_dir", $HOME .. "/.cache/fzf-hoogle/")
@@ -213,10 +214,6 @@ function! s:Response(request) abort
     let response.text = '-- No internet connection'
     return response
   endif
-  " We can only get source link from request that have anchor
-  if a:request !~ '#'
-    return response
-  endif
 
   let [page, anchor] = split(a:request, '#')
   let [source_head, file_tail] = split(page, "/docs/")
@@ -236,6 +233,15 @@ endfunction
 
 
 function! s:PreviewSourceCode(link) abort
+  " We can only get source link from request that have anchor
+  " so for module and package items just open default browser with a link
+  if a:link !~ '#'
+    if s:open_tool != ""
+      silent execute "!" .. s:open_tool .. " " .. a:link
+    endif
+    return
+  endif
+
   let response = s:Response(a:link)
   let source_text = get(response, "text", "-- There is no source for this item")
 
