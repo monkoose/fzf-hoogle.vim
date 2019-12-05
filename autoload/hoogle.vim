@@ -263,7 +263,6 @@ endfunction
 
 
 function! s:Source(query) abort
-  " Can be one 2> /dev/null removed?
   let hoogle = printf("%s --json %s 2> /dev/null | ", s:hoogle_path, shellescape(a:query))
   let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null | "
   let items_number = "head -n " .. s:count .. " | "
