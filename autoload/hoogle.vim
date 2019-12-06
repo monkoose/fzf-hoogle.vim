@@ -27,7 +27,7 @@ if !isdirectory(s:cache_dir)
   call mkdir(s:cache_dir, "p")
 endif
 let s:file = s:cache_dir .. 'query.json'
-let s:cachable_size = get(g:, "hoogle_cachable_size", 500) * 1000
+let s:cacheable_size = get(g:, "hoogle_cacheable_size", 500) * 1000
 
 let s:bin_dir = expand('<sfile>:h:h') .. '/bin/'
 let s:bin = {
@@ -191,7 +191,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
 
   let content_size = substitute(page_headers, '.*Content-Length: \(\d\+\).*', '\1', "")
   echo download_message
-  if content_size < s:cachable_size
+  if content_size < s:cacheable_size
     return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
   endif
 

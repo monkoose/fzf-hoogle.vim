@@ -82,7 +82,7 @@ augroup END
    it is executable or blank string. Mac users just should change it to `open` and it should work.
  - `g:hoogle_allow_cache` - activates/deactivates caching. Bool. Default: `1`
  - `g:hoogle_cache_dir` - location of the cache directory, should end with slash. String. Default: `$HOME/.cache/fzf-hoogle/`
- - `g:hoogle_cachable_size` - cache only pages which size exceed this option. Cache only
+ - `g:hoogle_cacheable_size` - cache only pages which size exceed this option. Cache only
    documentation pages, source pages rarely exceed 500K size. Size in kilobytes.
    Int. Default: `500`
 
