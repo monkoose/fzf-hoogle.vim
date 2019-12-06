@@ -1,6 +1,6 @@
 # fzf-hoogle.vim (works only on linux and mac)
 
-(neo)vim plugin for previewing hoogle results with fzf and open source code
+(neo)vim plugin that uses fzf for previewing hoogle search results
 ![fzf-hoogle.vim in action](https://github.com/monkoose/fzf-hoogle-images/blob/master/fzf-hoogle-action.gif?raw=true)
 
 ## Requirements
@@ -39,7 +39,7 @@ vim/neovim so open preview window for source that wasn't previously cached can t
 please just be patient. Vim will hangs for this time. Maybe I will improve this behavior later with
 *curl --max-time* flag or asynchronous run of curl inside vim.
 Package and module items do not have link to source code, so `alt-s` should open default browser
-and link to package/module documentation. If it doesn't work (perhabs if you are on Mac), then
+and link to package/module documentation. If it doesn't work (perhaps if you are on Mac), then
 change `g:hoogle_open_link` option to open links with cli tool.
 
 `Esc` or `ctrl-c` to close fzf window.
