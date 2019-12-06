@@ -158,12 +158,6 @@ function! s:Handler(lines) abort
 endfunction
 
 
-function! s:Connected() abort
-  call system('curl -sI google.com')
-  return !v:shell_error
-endfunction
-
-
 function! s:GetSourceTail(page, anchor, file_tail) abort
   " A lot of trim() because system() produce unwanted NUL ^@ and some other space characters.
   " Not sure if it is the best way to get rid of them
@@ -209,12 +203,6 @@ endfunction
 function! s:Response(request) abort
   echo "Locating source file..."
   let response = {}
-
-  if !s:Connected()
-    let response.text = '-- No internet connection'
-    return response
-  endif
-
   let [page, anchor] = split(a:request, '#')
   let [source_head, file_tail] = split(page, "/docs/")
   let source_tail = s:GetSourceTail(page, anchor, file_tail)
