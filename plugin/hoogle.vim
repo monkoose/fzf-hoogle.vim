@@ -4,7 +4,7 @@ endif
 let g:loaded_hoogle = 1
 
 if !executable('jq')
-    echoerr '`jq` is not installed.'
+    echo 'fzf-hoogle: `jq` is not installed. Plugin disabled.'
     finish
 endif
 
