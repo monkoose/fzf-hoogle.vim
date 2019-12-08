@@ -18,17 +18,17 @@
 
 Using [vim-plug](https://github.com/junegunn/vim-plug)
 ```
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf', {'dir': '~/.fzf', 'do': './install --all'}
 
 Plug 'monkoose/fzf-hoogle.vim'
 ```
-Or use any other plugin manager. I bet you know it better then I'm.
+Or use any other plugin manager. I bet you know it better than I'm.
 
 ## Usage
 
 `:Hoogle` or append it with initial search like `:Hoogle >>=`.
 
-If you don't know how to properly search with hoogle look at the [hoogle documentation](https://github.com/ndmitchell/hoogle#searches).
+If you don't know how to properly search with hoogle, then look at the [hoogle documentation](https://github.com/ndmitchell/hoogle#searches).
 
 **Inside fzf window**
 
