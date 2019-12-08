@@ -77,7 +77,7 @@ augroup END
    changing parameters of hoogle#floatwindow(height, width).
  - `g:hoogle_fzf_header` - change fzf window header. String. Default: help info
  - `g:hoogle_fzf_preview` - change fzf preview split. String. Default: `right:60%:wrap`
- - `g:hoogle_count` - restrict fzf count lines by this number. Int. Default: `1000`
+ - `g:hoogle_count` - restrict fzf count lines by this number. Int. Default: `500`
  - `g:hoogle_open_link` - cli tool to open link in default browser. String. Default: `xdg-open` if
    it is executable or blank string. Mac users just should change it to `open` and it should work.
  - `g:hoogle_allow_cache` - activates/deactivates caching. Bool. Default: `1`

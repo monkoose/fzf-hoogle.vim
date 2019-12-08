@@ -11,7 +11,7 @@ else
   let s:window = get(g:, "hoogle_fzf_window", {"down": "50%"})
 endif
 
-let s:count = get(g:, "hoogle_count", 1000)
+let s:count = get(g:, "hoogle_count", 500)
 let s:header = get(g:, "hoogle_fzf_header",
       \ printf("\x1b[35m%s\x1b[m", 'enter') .. ' - research with query :: ' ..
       \ printf("\x1b[35m%s\x1b[m", 'alt-s') .. " - source code\n ")
@@ -44,7 +44,6 @@ function! s:Handler(lines) abort
   let keypress = a:lines[1]
   if keypress ==? 'enter'
     let query = a:lines[0]
-    " TODO: respect <bang> argument in Hoogle command
     let new_search = 'Hoogle ' .. query
     execute new_search
     " fzf on neovim for some reason can't start in insert mode from previous fzf window
