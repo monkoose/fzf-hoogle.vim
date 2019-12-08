@@ -24,6 +24,7 @@ if !isdirectory(s:cache_dir)
   call mkdir(s:cache_dir, "p")
 endif
 let s:file = s:cache_dir .. 'query.json'
+let s:source_file = s:cache_dir .. 'source.html'
 let s:cacheable_size = get(g:, "hoogle_cacheable_size", 500) * 1000
 
 let s:bin_dir = expand('<sfile>:h:h') .. '/bin/'
@@ -64,7 +65,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   " Not sure if it is the best way to get rid of them
   let anchor = trim(a:anchor)
   let download_message = "Downloading source file. Please wait..."
-  let curl_get = "curl -sL " .. a:page .. " | "
+  let curl_get = "curl -sL -m 10 " .. a:page .. " | "
   let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
   " Sometimes there more then one link for anchor so more then one line from grep
   let first_line = "| head -n 1 | "
@@ -78,10 +79,10 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
   let file_exists = file_path != ""
   let page_headers = system("curl -sIL " .. a:page)
-  let etag = trim(substitute(page_headers, '.*ETag: "\(\w\+\)".*', '\1', ""))
+  let etag = matchstr(page_headers, 'ETag: "\zs\w\+\ze"')
 
   if file_exists
-    let file_etag = substitute(file_path, '.*/\(\w\+\)==.*', '\1', "")
+    let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
     if etag ==# file_etag
       echo "Opening source file..."
       return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
@@ -90,7 +91,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
     endif
   endif
 
-  let content_size = substitute(page_headers, '.*Content-Length: \(\d\+\).*', '\1', "")
+  let content_size = matchstr(page_headers, 'Content-Length: \zs\d\+\ze')
   echo download_message
   if content_size < s:cacheable_size
     return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
@@ -111,11 +112,15 @@ function! s:Response(request) abort
   if source_link =~ '#'
     let [source_page, source_anchor] = split(source_link, '#')
     let source_anchor = hoogle#url#encode(hoogle#url#decode(source_anchor))
-    let text = system("curl -sL " .. source_page)
-    let response.linenr = substitute(text, '.*name="line-\(\d\+\)".*name="' .. source_anchor .. '".*', '\1', "")
+    let text =  system("curl -sL -m 10 " .. source_page .. " | tee " .. s:source_file)
+    let linenr = system(printf("grep 'name=\"%s\"' %s", source_anchor, s:source_file))
+    " Some pages don't have anchor tag for line-xx or proper anchor
+    if match(linenr, 'a name="line-\d\+"') != -1
+      let response.linenr = matchstr(linenr, 'name="line-\zs\d\+\ze"')
+    endif
     let response.text = hoogle#url#htmldecode(text)
     let response.preview_height = s:preview_height
-    let response.module_name = substitute(source_tail, '^src/\(.*\).html#.*', '\1', "")
+    let response.module_name = matchstr(source_tail, 'src/\zs.\{-1,}\ze\.html#')
   endif
   return response
 endfunction
