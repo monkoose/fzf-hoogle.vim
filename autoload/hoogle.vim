@@ -64,7 +64,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   " A lot of trim() because system() produce unwanted NUL ^@ and some other space characters.
   " Not sure if it is the best way to get rid of them
   let anchor = trim(a:anchor)
-  let download_message = "Downloading source file. Please wait..."
+  let download_message = "fzf-hoogle: Downloading source file. Please wait..."
   let curl_get = "curl -sL -m 10 " .. a:page .. " | "
   let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
   " Sometimes there more then one link for anchor so more then one line from grep
@@ -84,7 +84,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   if file_exists
     let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
     if etag ==# file_etag
-      echo "Opening source file..."
+      echo "fzf-hoogle: Opening source file..."
       return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
     else
       call delete(file_path)
@@ -103,7 +103,7 @@ endfunction
 
 
 function! s:Response(request) abort
-  echo "Locating source file..."
+  echo "fzf-hoogle: Locating source file..."
   let response = {}
   let [page, anchor] = split(a:request, '#')
   let [source_head, file_tail] = split(page, "/docs/")
@@ -150,6 +150,7 @@ function! s:PreviewSourceCode(link) abort
   call cursor(get(response, "linenr", 1), 1)
   execute "normal z\<CR>"
   execute "redraw!"
+  echo "fzf-hoogle: Done."
   nnoremap <silent><buffer> q <C-w>P:pclose<CR>
   setlocal cursorline
   setlocal nomodifiable
@@ -157,6 +158,9 @@ endfunction
 
 
 function! s:Source(query) abort
+  " TODO: since version 5.0.17.13 hoogle properly restrict output of json with --count and --json flags
+  " and this operation a little bit faster and use less resources then current restriction with `head`.
+  " So should rewrite this after some time.
   let hoogle = printf("%s --json %s 2> /dev/null | ", s:hoogle_path, shellescape(a:query))
   let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null | "
   let items_number = "head -n " .. s:count .. " | "
