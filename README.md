@@ -36,8 +36,7 @@ If you don't know how to properly search with hoogle look at the [hoogle documen
 
 `alt-s` for previewing source code. Retrieving source code is synchronous process inside
 vim/neovim so open preview window for source that wasn't previously cached can take some time,
-please just be patient. Vim will hangs for this time. Maybe I will improve this behavior later with
-*curl --max-time* flag or asynchronous run of curl inside vim.
+please just be patient - **vim** will hangs for this time.
 Package and module items do not have link to source code, so `alt-s` should open default browser
 and link to package/module documentation. If it doesn't work (perhaps if you are on Mac), then
 change `g:hoogle_open_link` option to open links with cli tool.
@@ -89,7 +88,6 @@ augroup END
 
 ## TODO
 
- - Make it less error prone
  - Add vim documentation
 
 ## BREAKING CHANGES
