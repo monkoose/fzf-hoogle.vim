@@ -1,0 +1,212 @@
+*fzf-hoogle.txt*   (neo)vim plugin that uses fzf for previewing hoogle search results
+
+Version: 1.0.0
+Author: monkoose <https://github.com/monkoose>
+License: MIT license
+
+==============================================================================
+CONTENTS                                                 *fzf-hoogle-contents*
+
+    Introduction                   |fzf-hoogle-introduction|
+    Requirements                   |fzf-hoogle-requirements|
+    Usage                          |fzf-hoogle-usage|
+      Hoogle search                |fzf-hoogle-search|
+    Configuration                  |fzf-hoogle-configuration|
+      Fzf recomendations           |fzf-hoogle-fzf-recomendations|
+    Credits                        |fzf-hoogle-credits|
+
+==============================================================================
+INTRODUCTION                                         *fzf-hoogle-introduction*
+
+fzf-hoogle provides a convenient way to preview hoogle search database
+results and with help of `curl` to open source code in the preview window.
+Because it uses `fzf` as fuzzy-finder it is easy to filter results too.
+
+==============================================================================
+REQUIREMENTS                                         *fzf-hoogle-requirements*
+
+  OS~
+    Linux or macOS
+  CLI tools~
+    `hoogle` with generated database (https://github.com/ndmitchell/hoogle)
+    `fzf` fuzzy finder (https://github.com/junegunn/fzf)
+    `jq` JSON processor (https://github.com/stedolan/jq)
+    `curl` CLI tool for transfering data (https://github.com/curl/curl)
+    Also `sed`, `tee`, `awk` and `head` CLI tools.
+  Vim version~
+    8.1+
+  Neovim version~
+    0.4+
+
+==============================================================================
+USAGE                                                       *fzf-hoogle-usage*
+
+                                                   *:Hoogle* *fzf-hoogle-Hoogle*
+:Hoogle[!] {query}
+
+        Opens fzf window with hoogle search results. |:Hoogle| can be appended
+        with {query} to open fzf window with predefined query. The optional !
+        opens fzf window in fullscreen new tab. Window size and position can
+        be specified with |g:hoogle_fzf_window| variable.
+
+  Inside fzf window~
+        `Enter` - reopens fzf window with current entered filter as {query} to
+        |:Hoogle| command.
+        `Alt-s` - for package or module opens the default OS browser with link
+        to the documentation. Check |g:hoogle_open_link| variable if you have
+        problems with opening documentation in the browser.
+        For other items that have links to source code it tries to open this
+        source code in the preview window.
+        `Crl-j` and `Ctrl-k` - select next/previous line. Works if these
+        bindings weren't changed in the fzf config.
+        `Esc` or `Ctrl-c` - closes fzf window.
+
+------------------------------------------------------------------------------
+HOOGLE SEARCH                               *fzf-hoogle-hoogle-search*
+
+This section explains how to use hoogle to search specific items. All queries
+can be used as {query} for |:Hoogle| command or inside fzf window finished
+with `Enter` hit:
+  map~
+    searches as text, finding `map`, `concatMap`, `mapM` etc
+  con map~
+    searches for the text "map" and "con" finding `concatMap` or `mapCont`, but
+    not `map`
+  a -> a~
+    searches by type, finding `id :: a -> a` etc. Any letter can be used for
+    types `o -> o` will find same things
+  a~
+    searches for the text `a` before `::`
+  :: a~
+    searches for the type `a` after `::`
+  id :: a -> a~
+    searches for the text "id" and the type "a -> a", finding `id :: a -> a`,
+    `identity :: a -> a` etc
+
+All searches can be restricted with the scope `+` / `-` before package or
+module name:
+  mode +cmdargs~
+    searches for the text "mode" only in the `cmdargs` package
+  file -base~
+    searches for the text "file", excluding the `base` package
+  mode +base +cmdargs~
+    searches both the `base` and the `cmdargs` packages
+  count +missingh~
+    searches only the `MissingH` package. All packages are written in
+    lower-case
+  file -System~
+    excludes results from modules such as `System.IO`, `Distribution.System`,
+    `System.FilePath.Windows` etc
+  fold +Data.Map.Lazy~
+    finds results only in the `Data.Map.Internal` module
+
+==============================================================================
+CONFIGURATION                                       *fzf-hoogle-configuration*
+
+g:loaded_hoogle                                              *g:loaded_hoogle*
+
+        Any value disables fzf-hoogle.
+
+g:hoogle_path                                                  *g:hoogle_path*
+
+        Path to hoogle executable.
+        `Default is 'hoogle'`
+
+g:hoogle_preview_height                              *g:hoogle_preview_height*
+
+        Height of the preview window with source code.
+        `Default is 22`
+
+g:hoogle_fzf_window                                      *g:hoogle_fzf_window*
+
+        Size and position of the fzf window. To change the size of the
+        floating
+        window in neovim, change arguments of
+        `hoogle#floatwindow(rows, columns)` funtion
+        `Default is {'window': 'call hoogle#floatwindow(32, 132)'} in neovim`
+                `or {'down': '50%'} in vim`
+
+g:hoogle_fzf_header                                      *g:hoogle_fzf_header*
+
+        Fzf window header text.
+        `Default is "'enter' - research with query  'alt-s' - source code"`
+
+g:hoogle_fzf_preview                                    *g:hoogle_fzf_preview*
+
+        Size, position and behavior of the fzf preview window.
+        `Default is 'right:60:wrap'`
+
+g:hoogle_count                                                *g:hoogle_count*
+
+        Maximum number of the items of the hoogle search results. This value
+        shouldn't have big impact on fzf previews, but if you see some, try to
+        lower this value. Or you can set it to something like `100000` to
+        receive all results from hoogle search.
+        `Default is 500`
+
+g:hoogle_open_link                                        *g:hoogle_open_link*
+
+        CLI tool to open links in the browser. macOS users should change it
+        to `'open'`, for Linux users this should work out of the box.
+        `Default is 'xdg-open'`
+
+g:hoogle_allow_cache                                    *g:hoogle_allow_cache*
+
+        Allows caching feature. Set to `0` to disable it.
+        `Default is 1`
+
+g:hoogle_cache_dir                                        *g:hoogle_cache_dir*
+
+        Path to the cache directory. Should end with the forward slash.
+        Even if cache is disabled this directory is used for some temporary
+        files.
+        `Default is '~/.cache/fzf-hoogle/'`
+
+g:hoogle_cacheable_size                              *g:hoogle_cacheable_size*
+
+        Minimal size of the documentation pages that should be cached.
+        These variables are used only for documentation pages (that processes
+        for finding links to source code), because source code pages rarely
+        exceed 500K. Size in kilobytes. Set it to `0` to cache all documentation
+        pages.
+        `Default is 500`
+
+------------------------------------------------------------------------------
+FZF RECOMENDATIONS                           *g:fzf-hoogle-fzf-recomendations*
+
+It is recommended to set some fzf default options for better experience. They
+can be set in such files like `.bashrc` or `.zshrc` or append to your default
+options inside vim with |:let.=| :
+>
+        let $FZF_DEFAULTS_OPTS .= ' --bind=...'
+<
+  --bind=ctrl-n:preview-page-down~
+        Scroll inside the preview page down with <C-n>. It conflicts with
+        default fzf map `next-history`, so you should change it or just use
+        another map for this option.
+
+  --bind=ctrl-p:preview-page-up~
+        Scroll inside the preview page up with <C-p>. It conflicts with
+        default fzf map `previous-history`, so you should change it or just
+        use another map for this option.
+
+These options are helpful when the documentation text in the preview window
+exceeds the window size. So you can scroll the text to read it all.
+
+It is also my recomendations to fully configure fzf for your needs.
+Read `man fzf` for it.
+
+==============================================================================
+CREDITS                                                   *fzf-hoogle-credits*
+
+Credits to Junegunn Choi (https://github.com/junegunn) for his incredible tool
+`fzf`, without it this plugin will not exist.
+
+Credits to Neil Mitchell (https://github.com/ndmitchell) for his haskell
+packages hoogle, hlint and others.
+
+And last one to Tim Pope (https://github.com/tpope), fzf-hoogle uses some
+functions from his plugin `vim-unimpaired` to encode/decode HTML and URL string.
+
+==============================================================================
+vim:tw=78:ft=help:norl:fen:
