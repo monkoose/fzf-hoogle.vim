@@ -2,21 +2,23 @@
 " Options
 " ----------------------------------------------------------
 
-let s:hoogle_path = get(g:, "hoogle_path", "hoogle")
-let s:preview_height = get(g:, "hoogle_preview_height", 22)
-
 if has('nvim')
   let s:window = get(g:, "hoogle_fzf_window", {"window": "call hoogle#floatwindow(32, 132)"})
 else
   let s:window = get(g:, "hoogle_fzf_window", {"down": "50%"})
 endif
 
+let s:hoogle_path = get(g:, "hoogle_path", "hoogle")
+let s:preview_height = get(g:, "hoogle_preview_height", 22)
 let s:count = get(g:, "hoogle_count", 500)
 let s:header = get(g:, "hoogle_fzf_header",
       \ printf("\x1b[35m%s\x1b[m", 'enter') .. ' - research with query  ' ..
       \ printf("\x1b[35m%s\x1b[m", 'alt-s') .. " - source code\n ")
 let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
 let s:open_tool = get(g:, "hoogle_open_link", executable("xdg-open") ? "xdg-open" : "")
+let s:cacheable_size = get(g:, "hoogle_cacheable_size", 500) * 1000
+let s:preview_handler = expand('<sfile>:h:h') .. '/bin/preview.sh'
+
 " Cache only documentation pages, because source code pages rarely exceed 500K
 let s:allow_cache = get(g:, "hoogle_allow_cache", 1)
 let s:cache_dir = get(g:, "hoogle_cache_dir", $HOME .. "/.cache/fzf-hoogle/")
@@ -25,12 +27,6 @@ if !isdirectory(s:cache_dir)
 endif
 let s:file = s:cache_dir .. 'query.json'
 let s:source_file = s:cache_dir .. 'source.html'
-let s:cacheable_size = get(g:, "hoogle_cacheable_size", 500) * 1000
-
-let s:bin_dir = expand('<sfile>:h:h') .. '/bin/'
-let s:bin = {
-      \ 'preview': s:bin_dir .. 'preview.sh',
-      \ }
 
 " ----------------------------------------------------------
 " Hoogle
@@ -211,7 +207,7 @@ function! hoogle#run(query, fullscreen) abort
             \ '--inline-info',
             \ '--prompt', prompt,
             \ '--header', s:header,
-            \ '--preview', shellescape(s:bin.preview) .. ' ' .. s:file .. ' {} {n}',
+            \ '--preview', shellescape(s:preview_handler) .. ' ' .. s:file .. ' {} {n}',
             \ '--preview-window', s:fzf_preview,
             \ ]
       \ }
