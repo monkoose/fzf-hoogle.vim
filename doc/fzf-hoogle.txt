@@ -12,7 +12,7 @@ CONTENTS                                                 *fzf-hoogle-contents*
     Usage                          |fzf-hoogle-usage|
       Hoogle search                |fzf-hoogle-search|
     Configuration                  |fzf-hoogle-configuration|
-      Fzf recomendations           |fzf-hoogle-fzf-recomendations|
+      Fzf recommendations          |fzf-hoogle-fzf-recommendations|
     Credits                        |fzf-hoogle-credits|
 
 ==============================================================================
@@ -31,7 +31,7 @@ REQUIREMENTS                                         *fzf-hoogle-requirements*
     `hoogle` with generated database (https://github.com/ndmitchell/hoogle)
     `fzf` fuzzy finder (https://github.com/junegunn/fzf)
     `jq` JSON processor (https://github.com/stedolan/jq)
-    `curl` CLI tool for transfering data (https://github.com/curl/curl)
+    `curl` CLI tool for transferring data (https://github.com/curl/curl)
     Also `sed`, `tee`, `awk` and `head` CLI tools.
   Vim version~
     8.1+
@@ -122,7 +122,7 @@ g:hoogle_fzf_window                                      *g:hoogle_fzf_window*
         Size and position of the fzf window. To change the size of the
         floating
         window in neovim, change arguments of
-        `hoogle#floatwindow(rows, columns)` funtion
+        `hoogle#floatwindow(rows, columns)` function
         `Default is {'window': 'call hoogle#floatwindow(32, 132)'} in neovim`
                 `or {'down': '50%'} in vim`
 
@@ -172,7 +172,7 @@ g:hoogle_cacheable_size                              *g:hoogle_cacheable_size*
         `Default is 500`
 
 ------------------------------------------------------------------------------
-FZF RECOMENDATIONS                           *g:fzf-hoogle-fzf-recomendations*
+FZF RECOMMENDATIONS                         *g:fzf-hoogle-fzf-recommendations*
 
 It is recommended to set some fzf default options for better experience. They
 can be set in such files like `.bashrc` or `.zshrc` or append to your default
@@ -193,7 +193,7 @@ options inside vim with |:let.=| :
 These options are helpful when the documentation text in the preview window
 exceeds the window size. So you can scroll the text to read it all.
 
-It is also my recomendations to fully configure fzf for your needs.
+It is also my recommendations to fully configure fzf for your needs.
 Read `man fzf` for it.
 
 ==============================================================================
@@ -202,7 +202,7 @@ CREDITS                                                   *fzf-hoogle-credits*
 Credits to Junegunn Choi (https://github.com/junegunn) for his incredible tool
 `fzf`, without it this plugin will not exist.
 
-Credits to Neil Mitchell (https://github.com/ndmitchell) for his haskell
+Credits to Neil Mitchell (https://github.com/ndmitchell) for his Haskell
 packages hoogle, hlint and others.
 
 And last one to Tim Pope (https://github.com/tpope), fzf-hoogle uses some
