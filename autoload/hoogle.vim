@@ -6,14 +6,14 @@ let s:hoogle_path = get(g:, "hoogle_path", "hoogle")
 let s:preview_height = get(g:, "hoogle_preview_height", 22)
 
 if has('nvim')
-  let s:window = get(g:, "hoogle_fzf_window", {"window": "call hoogle#floatwindow(40, 150)"})
+  let s:window = get(g:, "hoogle_fzf_window", {"window": "call hoogle#floatwindow(32, 132)"})
 else
   let s:window = get(g:, "hoogle_fzf_window", {"down": "50%"})
 endif
 
 let s:count = get(g:, "hoogle_count", 500)
 let s:header = get(g:, "hoogle_fzf_header",
-      \ printf("\x1b[35m%s\x1b[m", 'enter') .. ' - research with query :: ' ..
+      \ printf("\x1b[35m%s\x1b[m", 'enter') .. ' - research with query  ' ..
       \ printf("\x1b[35m%s\x1b[m", 'alt-s') .. " - source code\n ")
 let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
 let s:open_tool = get(g:, "hoogle_open_link", executable("xdg-open") ? "xdg-open" : "")
