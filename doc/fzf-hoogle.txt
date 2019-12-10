@@ -1,6 +1,6 @@
 *fzf-hoogle.txt*   (neo)vim plugin that uses fzf for previewing hoogle search results
 
-Version: 1.0.0
+Version: 1.0.1
 Author: monkoose <https://github.com/monkoose>
 License: MIT license
 
@@ -46,7 +46,7 @@ USAGE                                                       *fzf-hoogle-usage*
 
         Opens fzf window with hoogle search results. |:Hoogle| can be appended
         with {query} to open fzf window with predefined query. The optional !
-        opens fzf window in fullscreen new tab. Window size and position can
+        opens fzf window in a new fullscreen tab. Window size and position can
         be specified with |g:hoogle_fzf_window| variable.
 
   Inside fzf window~
@@ -206,7 +206,7 @@ Credits to Neil Mitchell (https://github.com/ndmitchell) for his Haskell
 packages hoogle, hlint and others.
 
 And last one to Tim Pope (https://github.com/tpope), fzf-hoogle uses some
-functions from his plugin `vim-unimpaired` to encode/decode HTML and URL string.
+functions from his plugin `vim-unimpaired` to encode/decode HTML text and URLs.
 
 ==============================================================================
 vim:tw=78:ft=help:norl:fen:
