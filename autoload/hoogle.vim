@@ -32,7 +32,7 @@ let s:source_file = s:cache_dir .. 'source.html'
 " Hoogle
 " ----------------------------------------------------------
 
-function! s:Handler(lines) abort
+function! s:Handler(bang, lines) abort
   " exit if empty for <Esc> hit
   if a:lines == [] || a:lines == ['','','']
     return
@@ -41,7 +41,11 @@ function! s:Handler(lines) abort
   let keypress = a:lines[1]
   if keypress ==? 'enter'
     let query = a:lines[0]
-    let new_search = 'Hoogle ' .. query
+    if a:bang
+      let new_search = 'Hoogle! ' .. query
+    else
+      let new_search = 'Hoogle ' .. query
+    endif
     execute new_search
     " fzf on neovim for some reason can't start in insert mode from previous fzf window
     " there is workaround for this
@@ -50,7 +54,9 @@ function! s:Handler(lines) abort
     endif
   elseif keypress ==? 'alt-s'
     let item = a:lines[2]
-    let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s", item, s:file))
+    let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
+                            \ item,
+                            \ s:file))
     call s:PreviewSourceCode(link)
   endif
 endfunction
@@ -195,7 +201,7 @@ function! hoogle#run(query, fullscreen) abort
   endif
 
   let options = {
-      \ 'sink*': function('s:Handler'),
+      \ 'sink*': function('s:Handler', [a:fullscreen]),
       \ 'source': s:Source(a:query),
       \ 'options': [
             \ '--no-multi',
