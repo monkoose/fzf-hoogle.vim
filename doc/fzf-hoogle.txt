@@ -62,7 +62,7 @@ USAGE                                                       *fzf-hoogle-usage*
         `Esc` or `Ctrl-c` - closes fzf window.
 
 ------------------------------------------------------------------------------
-HOOGLE SEARCH                               *fzf-hoogle-hoogle-search*
+HOOGLE SEARCH                                       *fzf-hoogle-hoogle-search*
 
 This section explains how to use hoogle to search specific items. All queries
 can be used as {query} for |:Hoogle| command or inside fzf window finished
