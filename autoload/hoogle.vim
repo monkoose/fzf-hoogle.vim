@@ -62,11 +62,20 @@ function! s:Handler(bang, lines) abort
 endfunction
 
 
+function! s:Message(text) abort
+  redraw!
+  echohl WarningMsg
+  echo "fzf-hoogle: "
+  echohl None
+  echon a:text
+endfunction
+
+
 function! s:GetSourceTail(page, anchor, file_tail) abort
   " A lot of trim() because system() produce unwanted NUL ^@ and some other space characters.
   " Not sure if it is the best way to get rid of them
   let anchor = trim(a:anchor)
-  let download_message = "fzf-hoogle: Downloading source file. Please wait..."
+  let DownloadMessage = function('s:Message', ['Downloading source file. Please wait...'])
   let curl_get = "curl -sL -m 10 " .. a:page .. " | "
   let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
   " Sometimes there more then one link for anchor so more then one line from grep
@@ -74,7 +83,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   let strip_to_link = "sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
 
   if !s:allow_cache || a:page !~ '^http'
-    echo download_message
+    call DownloadMessage()
     return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
   endif
 
@@ -86,7 +95,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   if file_exists
     let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
     if etag ==# file_etag
-      echo "fzf-hoogle: Opening source file..."
+      call s:Message('Opening source file...')
       return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
     else
       call delete(file_path)
@@ -94,7 +103,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   endif
 
   let content_size = matchstr(page_headers, 'Content-Length: \zs\d\+\ze')
-  echo download_message
+  call DownloadMessage()
   if content_size < s:cacheable_size
     return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
   endif
@@ -105,7 +114,7 @@ endfunction
 
 
 function! s:Response(request) abort
-  echo "fzf-hoogle: Locating source file..."
+  call s:Message('Locating source file...')
   let response = {}
   let [page, anchor] = split(a:request, '#')
   let [source_head, file_tail] = split(page, "/docs/")
@@ -133,7 +142,11 @@ function! s:PreviewSourceCode(link) abort
   " so for module and package items just open default browser with a link
   if a:link !~ '#'
     if s:open_tool != ""
-      silent execute "!" .. s:open_tool .. " " .. a:link
+      execute 'silent! !' .. s:open_tool .. ' ' .. a:link .. '" &> /dev/null &"'
+      call s:Message('Open ')
+      echohl String
+      echon a:link
+      echohl None
     endif
     return
   endif
@@ -151,8 +164,7 @@ function! s:PreviewSourceCode(link) abort
   execute "resize " .. get(response, "preview_height", s:preview_height)
   call cursor(get(response, "linenr", 1), 1)
   execute "normal z\<CR>"
-  execute "redraw!"
-  echo "fzf-hoogle: Done."
+  call s:Message('Done')
   nnoremap <silent><buffer> q <C-w>P:pclose<CR>
   setlocal cursorline
   setlocal nomodifiable
