@@ -1,6 +1,6 @@
 *fzf-hoogle.txt*   (neo)vim plugin that uses fzf for previewing hoogle search results
 
-Version: 1.0.1
+Version: 1.0.2
 Author: monkoose <https://github.com/monkoose>
 License: MIT license
 
@@ -120,8 +120,7 @@ g:hoogle_preview_height                              *g:hoogle_preview_height*
 g:hoogle_fzf_window                                      *g:hoogle_fzf_window*
 
         Size and position of the fzf window. To change the size of the
-        floating
-        window in neovim, change arguments of
+        floating window in neovim, change arguments of
         `hoogle#floatwindow(rows, columns)` function
         `Default is {'window': 'call hoogle#floatwindow(32, 132)'} in neovim`
                 `or {'down': '50%'} in vim`
