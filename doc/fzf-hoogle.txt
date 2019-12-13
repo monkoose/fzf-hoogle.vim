@@ -1,6 +1,6 @@
 *fzf-hoogle.txt*   (neo)vim plugin that uses fzf for previewing hoogle search results
 
-Version: 1.0.2
+Version: 1.1.0
 Author: monkoose <https://github.com/monkoose>
 License: MIT license
 
@@ -169,6 +169,12 @@ g:hoogle_cacheable_size                              *g:hoogle_cacheable_size*
         exceed 500K. Size in kilobytes. Set it to `0` to cache all documentation
         pages.
         `Default is 500`
+
+g:hoogle_enable_messages                            *g:hoogle_enable_messages*
+
+        Enables echoing of the fzf-hoogle status messages.
+        Set to `0` to disable them.
+        `Default is 1`
 
 ------------------------------------------------------------------------------
 FZF RECOMMENDATIONS                         *g:fzf-hoogle-fzf-recommendations*

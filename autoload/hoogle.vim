@@ -18,6 +18,7 @@ let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
 let s:open_tool = get(g:, "hoogle_open_link", executable("xdg-open") ? "xdg-open" : "")
 let s:cacheable_size = get(g:, "hoogle_cacheable_size", 500) * 1000
 let s:preview_handler = expand('<sfile>:h:h') .. '/bin/preview.sh'
+let s:enable_messages = get(g:, "hoogle_enable_messages", 1)
 
 " Cache only documentation pages, because source code pages rarely exceed 500K
 let s:allow_cache = get(g:, "hoogle_allow_cache", 1)
@@ -31,6 +32,111 @@ let s:source_file = s:cache_dir .. 'source.html'
 " ----------------------------------------------------------
 " Hoogle
 " ----------------------------------------------------------
+
+function! s:Message(text) abort
+  redraw!
+  if s:enable_messages
+    echohl WarningMsg
+    echo "fzf-hoogle: "
+    echohl None
+    echon a:text
+  endif
+endfunction
+
+
+function! s:GetSourceTail(page, anchor, file_tail) abort
+  " A lot of trim() because system() produce unwanted NUL ^@ and some other space characters.
+  " Not sure if it is the best way to get rid of them
+  let anchor = trim(a:anchor)
+  let curl_get = "curl -sL -m 10 " .. a:page .. " | "
+  let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
+  " Sometimes there more then one link for anchor so more then one line from grep
+  let first_line = "| head -n 1 | "
+  let strip_to_link = "sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
+
+  if !s:allow_cache || a:page !~ '^http'
+    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
+  endif
+
+  let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
+  let file_exists = file_path != ""
+  let page_headers = system("curl -sIL " .. a:page)
+  let etag = matchstr(page_headers, 'ETag: "\zs\w\+\ze"')
+
+  if file_exists
+    let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
+    if etag ==# file_etag
+      return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
+    else
+      call delete(file_path)
+    endif
+  endif
+
+  let content_size = matchstr(page_headers, 'Content-Length: \zs\d\+\ze')
+  if content_size < s:cacheable_size
+    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
+  endif
+
+  let save_file  = "tee " .. s:cache_dir .. etag .. "==" .. a:file_tail .. " | "
+  return trim(system(curl_get .. save_file .. line_with_anchor .. first_line .. strip_to_link))
+endfunction
+
+
+function! s:PreviewSourceCode(link) abort
+  " We can only get source link from request that have anchor
+  " so for module and package items just open default browser with a link
+  if a:link !~ '#'
+    if s:open_tool != ''
+      silent! execute '!' .. s:open_tool .. ' ' .. a:link .. '" &> /dev/null &"'
+      call s:Message('The link was sent to a default browser')
+    endif
+    return
+  endif
+
+  call s:Message('Locating source file...')
+  let response = {}
+  let [page, anchor] = split(a:link, '#')
+  let [source_head, file_tail] = split(page, "/docs/")
+  let source_tail = s:GetSourceTail(page, anchor, file_tail)
+  let source_link = source_head .. "/docs/" .. source_tail
+  if source_link =~ '#'
+    let [source_page, source_anchor] = split(source_link, '#')
+    let source_anchor = hoogle#url#encode(hoogle#url#decode(source_anchor))
+    call s:Message('Downloading source file...')
+    let text =  system("curl -sL -m 10 " .. source_page .. " | tee " .. s:source_file)
+    let linenr = system(printf("grep 'name=\"%s\"' %s", source_anchor, s:source_file))
+    " Some pages don't have anchor tag for line-xx or proper anchor
+    if match(linenr, 'a name="line-\d\+"') != -1
+      let response.linenr = matchstr(linenr, 'name="line-\zs\d\+\ze"')
+    endif
+    let response.text = hoogle#url#htmldecode(text)
+    let response.preview_height = s:preview_height
+    let response.module_name = matchstr(source_tail, 'src/\zs.\{-1,}\ze\.html#')
+  endif
+
+  call s:OpenPreviewWindow(response)
+endfunction
+
+
+function! s:OpenPreviewWindow(dict) abort
+  let source_text = get(a:dict, "text", "-- There is no source for this item")
+
+  pclose
+  execute 'silent! pedit +setlocal\ buftype=nofile\ nobuflisted\ ' ..
+          \ 'noswapfile\ bufhidden=wipe\ filetype=hoogle\ syntax=haskell ' ..
+          \ get(a:dict, "module_name", "hoogle")
+
+  execute "normal! \<C-w>P"
+  execute "silent! 0put =source_text"
+  execute "resize " .. get(a:dict, "preview_height", s:preview_height)
+  call cursor(get(a:dict, "linenr", 1), 1)
+  execute "normal z\<CR>"
+  call s:Message('Done')
+  nnoremap <silent><buffer> q <C-w>P:pclose<CR>
+  setlocal cursorline
+  setlocal nomodifiable
+endfunction
+
 
 function! s:Handler(bang, lines) abort
   " exit if empty for <Esc> hit
@@ -59,115 +165,6 @@ function! s:Handler(bang, lines) abort
                             \ s:file))
     call s:PreviewSourceCode(link)
   endif
-endfunction
-
-
-function! s:Message(text) abort
-  redraw!
-  echohl WarningMsg
-  echo "fzf-hoogle: "
-  echohl None
-  echon a:text
-endfunction
-
-
-function! s:GetSourceTail(page, anchor, file_tail) abort
-  " A lot of trim() because system() produce unwanted NUL ^@ and some other space characters.
-  " Not sure if it is the best way to get rid of them
-  let anchor = trim(a:anchor)
-  let DownloadMessage = function('s:Message', ['Downloading source file. Please wait...'])
-  let curl_get = "curl -sL -m 10 " .. a:page .. " | "
-  let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
-  " Sometimes there more then one link for anchor so more then one line from grep
-  let first_line = "| head -n 1 | "
-  let strip_to_link = "sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
-
-  if !s:allow_cache || a:page !~ '^http'
-    call DownloadMessage()
-    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
-  endif
-
-  let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
-  let file_exists = file_path != ""
-  let page_headers = system("curl -sIL " .. a:page)
-  let etag = matchstr(page_headers, 'ETag: "\zs\w\+\ze"')
-
-  if file_exists
-    let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
-    if etag ==# file_etag
-      call s:Message('Opening source file...')
-      return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
-    else
-      call delete(file_path)
-    endif
-  endif
-
-  let content_size = matchstr(page_headers, 'Content-Length: \zs\d\+\ze')
-  call DownloadMessage()
-  if content_size < s:cacheable_size
-    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
-  endif
-
-  let save_file  = "tee " .. s:cache_dir .. etag .. "==" .. a:file_tail .. " | "
-  return trim(system(curl_get .. save_file .. line_with_anchor .. first_line .. strip_to_link))
-endfunction
-
-
-function! s:Response(request) abort
-  call s:Message('Locating source file...')
-  let response = {}
-  let [page, anchor] = split(a:request, '#')
-  let [source_head, file_tail] = split(page, "/docs/")
-  let source_tail = s:GetSourceTail(page, anchor, file_tail)
-  let source_link = source_head .. "/docs/" .. source_tail
-  if source_link =~ '#'
-    let [source_page, source_anchor] = split(source_link, '#')
-    let source_anchor = hoogle#url#encode(hoogle#url#decode(source_anchor))
-    let text =  system("curl -sL -m 10 " .. source_page .. " | tee " .. s:source_file)
-    let linenr = system(printf("grep 'name=\"%s\"' %s", source_anchor, s:source_file))
-    " Some pages don't have anchor tag for line-xx or proper anchor
-    if match(linenr, 'a name="line-\d\+"') != -1
-      let response.linenr = matchstr(linenr, 'name="line-\zs\d\+\ze"')
-    endif
-    let response.text = hoogle#url#htmldecode(text)
-    let response.preview_height = s:preview_height
-    let response.module_name = matchstr(source_tail, 'src/\zs.\{-1,}\ze\.html#')
-  endif
-  return response
-endfunction
-
-
-function! s:PreviewSourceCode(link) abort
-  " We can only get source link from request that have anchor
-  " so for module and package items just open default browser with a link
-  if a:link !~ '#'
-    if s:open_tool != ""
-      execute 'silent! !' .. s:open_tool .. ' ' .. a:link .. '" &> /dev/null &"'
-      call s:Message('Open ')
-      echohl String
-      echon a:link
-      echohl None
-    endif
-    return
-  endif
-
-  let response = s:Response(a:link)
-  let source_text = get(response, "text", "-- There is no source for this item")
-
-  pclose
-  execute 'silent! pedit +setlocal\ buftype=nofile\ nobuflisted\ ' ..
-          \ 'noswapfile\ bufhidden=wipe\ filetype=hoogle\ syntax=haskell ' ..
-          \ get(response, "module_name", "hoogle")
-
-  execute "normal! \<C-w>P"
-  execute "silent! 0put =source_text"
-  execute "resize " .. get(response, "preview_height", s:preview_height)
-  call cursor(get(response, "linenr", 1), 1)
-  execute "normal z\<CR>"
-  call s:Message('Done')
-  nnoremap <silent><buffer> q <C-w>P:pclose<CR>
-  setlocal cursorline
-  setlocal nomodifiable
 endfunction
 
 
@@ -206,12 +203,7 @@ endfunction
 
 
 function! hoogle#run(query, fullscreen) abort
-  if strdisplaywidth(a:query) > 30
-    let prompt = a:query[:27] .. '.. > '
-  else
-    let prompt = a:query .. ' > '
-  endif
-
+  let prompt = strdisplaywidth(a:query) > 30 ? a:query[:27] .. '.. > ' : a:query .. ' > '
   let options = {
       \ 'sink*': function('s:Handler', [a:fullscreen]),
       \ 'source': s:Source(a:query),
@@ -231,5 +223,5 @@ function! hoogle#run(query, fullscreen) abort
       \ }
   call extend(options, s:window)
 
-  call fzf#run(fzf#wrap('hoogle', options, a:fullscreen ))
+  call fzf#run(fzf#wrap('hoogle', options, a:fullscreen))
 endfunction

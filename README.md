@@ -81,6 +81,7 @@ augroup END
  - `g:hoogle_cache_dir` - location of the cache directory, it should end with a slash. Default: `'~/.cache/fzf-hoogle/'`
  - `g:hoogle_cacheable_size` - cache only pages whose size exceeds this option. Cache only
    documentation pages, source pages rarely exceed 500K. Size in kilobytes. Default: `500`
+ - `g:hoogle_enable_messages` - activates/deactivates echoing of the fzf-hoogle messages. Default: `1`
 
 ## License
 MIT

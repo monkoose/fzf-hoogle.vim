@@ -13,6 +13,7 @@ g:hoogle_allow_cache	fzf-hoogle.txt	/*g:hoogle_allow_cache*
 g:hoogle_cache_dir	fzf-hoogle.txt	/*g:hoogle_cache_dir*
 g:hoogle_cacheable_size	fzf-hoogle.txt	/*g:hoogle_cacheable_size*
 g:hoogle_count	fzf-hoogle.txt	/*g:hoogle_count*
+g:hoogle_enable_messages	fzf-hoogle.txt	/*g:hoogle_enable_messages*
 g:hoogle_fzf_header	fzf-hoogle.txt	/*g:hoogle_fzf_header*
 g:hoogle_fzf_preview	fzf-hoogle.txt	/*g:hoogle_fzf_preview*
 g:hoogle_fzf_window	fzf-hoogle.txt	/*g:hoogle_fzf_window*
