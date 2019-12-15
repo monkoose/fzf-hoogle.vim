@@ -2,7 +2,8 @@
 " Options
 " ----------------------------------------------------------
 
-if has('nvim')
+let s:is_nvim = has('nvim')
+if s:is_nvim
   let s:window = get(g:, "hoogle_fzf_window", {"window": "call hoogle#floatwindow(32, 132)"})
 else
   let s:window = get(g:, "hoogle_fzf_window", {"down": "50%"})
@@ -147,17 +148,13 @@ function! s:Handler(bang, lines) abort
   let keypress = a:lines[1]
   if keypress ==? 'enter'
     let query = a:lines[0]
-    if a:bang
-      let new_search = 'Hoogle! ' .. query
-    else
-      let new_search = 'Hoogle ' .. query
-    endif
-    execute new_search
+    call hoogle#run(query, a:bang)
     " fzf on neovim for some reason can't start in insert mode from previous fzf window
     " there is workaround for this
-    if has('nvim')
+    if s:is_nvim
       call feedkeys('i', 'n')
     endif
+    return
   elseif keypress ==? 'alt-s'
     let item = a:lines[2]
     let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
