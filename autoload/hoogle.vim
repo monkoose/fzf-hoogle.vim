@@ -46,8 +46,6 @@ endfunction
 
 
 function! s:GetSourceTail(page, anchor, file_tail) abort
-  " A lot of trim() because system() produce unwanted NUL ^@ and some other space characters.
-  " Not sure if it is the best way to get rid of them
   let anchor = trim(a:anchor)
   let curl_get = "curl -sL -m 10 " .. a:page .. " | "
   let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
@@ -56,7 +54,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   let strip_to_link = "sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
 
   if !s:allow_cache || a:page !~ '^http'
-    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
+    return curl_get .. line_with_anchor .. first_line .. strip_to_link
   endif
 
   let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
@@ -67,7 +65,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   if file_exists
     let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
     if etag ==# file_etag
-      return trim(system(line_with_anchor .. file_path .. first_line .. strip_to_link))
+      return line_with_anchor .. file_path .. first_line .. strip_to_link
     else
       call delete(file_path)
     endif
@@ -75,11 +73,11 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
 
   let content_size = matchstr(page_headers, 'Content-Length: \zs\d\+\ze')
   if content_size < s:cacheable_size
-    return trim(system(curl_get .. line_with_anchor .. first_line .. strip_to_link))
+    return curl_get .. line_with_anchor .. first_line .. strip_to_link
   endif
 
   let save_file  = "tee " .. s:cache_dir .. etag .. "==" .. a:file_tail .. " | "
-  return trim(system(curl_get .. save_file .. line_with_anchor .. first_line .. strip_to_link))
+  return curl_get .. save_file .. line_with_anchor .. first_line .. strip_to_link
 endfunction
 
 
@@ -98,19 +96,16 @@ function! s:PreviewSourceCode(link) abort
   let response = {}
   let [page, anchor] = split(a:link, '#')
   let [source_head, file_tail] = split(page, "/docs/")
-  let source_tail = s:GetSourceTail(page, anchor, file_tail)
+  let source_tail = trim(system(s:GetSourceTail(page, anchor, file_tail)))
   let source_link = source_head .. "/docs/" .. source_tail
   if source_link =~ '#'
     let [source_page, source_anchor] = split(source_link, '#')
     let source_anchor = hoogle#url#encode(hoogle#url#decode(source_anchor))
     call s:Message('Downloading source file...')
-    let text =  system("curl -sL -m 10 " .. source_page .. " | tee " .. s:source_file)
-    let linenr = system(printf("grep 'name=\"%s\"' %s", source_anchor, s:source_file))
-    " Some pages don't have anchor tag for line-xx or proper anchor
-    if match(linenr, 'a name="line-\d\+"') != -1
-      let response.linenr = matchstr(linenr, 'name="line-\zs\d\+\ze"')
-    endif
-    let response.text = hoogle#url#htmldecode(text)
+    let text = systemlist("curl -sL -m 10 " .. source_page)
+    let line_index = match(text, 'name="' .. source_anchor .. '"')
+    let response.linenr = line_index >= 0 ? line_index + 1 : 1
+    let response.text = hoogle#url#htmldecode(join(text, "\n"))
     let response.preview_height = s:preview_height
     let response.module_name = matchstr(source_tail, 'src/\zs.\{-1,}\ze\.html#')
   endif
