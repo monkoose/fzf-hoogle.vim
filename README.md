@@ -66,22 +66,23 @@ augroup END
 
 ## Options
 
- - `g:loaded_hoogle` - any value deactivates the plugin.
- - `g:hoogle_path` - path to hoogle executable. Default: `'hoogle'`
- - `g:hoogle_preview_height` - change height of source code preview window. Default: `22`
- - `g:hoogle_fzf_window` - change fzf window. Default: `{"window": "call hoogle#floatwindow(32, 132)"}`
-   in neovim and `{'down': '50%'}` in vim. For neovim you can change floating window size by
-   changing parameters of hoogle#floatwindow(rows, columns).
- - `g:hoogle_fzf_header` - change fzf window header. Default: *maps help info*
- - `g:hoogle_fzf_preview` - change fzf preview split. Default: `'right:60%:wrap'`
- - `g:hoogle_count` - restrict fzf count lines by this number. Default: `500`
- - `g:hoogle_open_link` - CLI tool to open a link in the default browser. Default: `'xdg-open'` if
-   it is executable or blank string. macOS users just should change it to `'open'` and it should work.
- - `g:hoogle_allow_cache` - activates/deactivates caching. Default: `1`
- - `g:hoogle_cache_dir` - location of the cache directory, it should end with a slash. Default: `'~/.cache/fzf-hoogle/'`
- - `g:hoogle_cacheable_size` - cache only pages whose size exceeds this option. Cache only
-   documentation pages, source pages rarely exceed 500K. Size in kilobytes. Default: `500`
- - `g:hoogle_enable_messages` - activates/deactivates echoing of the fzf-hoogle messages. Default: `1`
+| Variable                   | Description                                                                    | Default                                            |
+|----------------------------|--------------------------------------------------------------------------------|----------------------------------------------------|
+| `g:loaded_hoogle`          | Any value deactivates the plugin.                                              |                                                    |
+| `g:hoogle_path`            | Path to hoogle executable.                                                     | `'hoogle'`                                         |
+| `g:hoogle_preview_height`  | Change height of the source code preview window.                               | `22`                                               |
+| `g:hoogle_fzf_window`      | Change fzf window.[^first]                                                     | neovim - `{"window": "call hoogle#floatwindow(32, 132)"}`. vim - `{'down': '50%'}` |
+| `g:hoogle_fzf_header`      | Change fzf window header.                                                      | 'enter - research with query  als-s - source code' |
+| `g:hoogle_fzf_preview`     | Change fzf preview split.                                                      | `'right:60%:wrap'`                                 |
+| `g:hoogle_count`           | Restrict fzf count lines by this number.                                       | `500`                                              |
+| `g:hoogle_open_link`       | CLI tool to open a link in the default browser. On macOs change it to `'open'` | `'xdg-open'` if it is executable, else `''`        |
+| `g:hoogle_allow_cache`     | Activates/deactivates caching.                                                 | `1`                                                |
+| `g:hoogle_cache_dir`       | Location of the cache directory, it should end with a slash.                   | `'~/.cache/fzf-hoogle/'`                           |
+| `g:hoogle_cacheable_size`  | Cache only pages whose size exceeds this option. Size in kilobytes.[^second]   | `500`                                              |
+| `g:hoogle_enable_messages` | Activates/deactivates echoing of the fzf-hoogle messages.                      | `1`                                                |
+
+[^first]: Cache only documentation pages, soruce pages rarely exceed 500K.
+[^second] For neovim you can change floating window size by changing parameters of hoogle#floatwindow(rows, columns).
 
 ## License
 MIT
