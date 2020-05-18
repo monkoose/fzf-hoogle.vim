@@ -81,8 +81,9 @@ augroup END
 | `g:hoogle_cacheable_size`  | Cache only pages whose size exceeds this option. Size in kilobytes.<sup>2</sup> | `500`                                              |
 | `g:hoogle_enable_messages` | Activates/deactivates echoing of the fzf-hoogle messages.                       | `1`                                                |
 
-**1** - cache only documentation pages, soruce pages rarely exceed 500K.
-**2** - for neovim you can change floating window size by changing parameters of hoogle#floatwindow(rows, columns).
+**1** - cache only documentation pages, soruce pages rarely exceed 500K
+
+**2** - for neovim you can change floating window size by changing parameters of `hoogle#floatwindow(rows, columns)`
 
 ## License
 MIT
