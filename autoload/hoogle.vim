@@ -48,13 +48,11 @@ endfunction
 function! s:GetSourceTail(page, anchor, file_tail) abort
   let anchor = trim(a:anchor)
   let curl_get = "curl -sL -m 10 " .. a:page .. " | "
-  let line_with_anchor = "grep -oP 'id=\"" .. anchor .. "\".*?class=\"link\"' "
-  " Sometimes there more then one link for anchor so more then one line from grep
-  let first_line = "| head -n 1 | "
-  let strip_to_link = "sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
+  let line_with_anchor = "grep -oP -m 1 'id=\"" .. anchor .. "\".*?class=\"link\"' "
+  let strip_to_link = "| sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
 
   if !s:allow_cache || a:page !~ '^http'
-    return curl_get .. line_with_anchor .. first_line .. strip_to_link
+    return curl_get .. line_with_anchor .. strip_to_link
   endif
 
   let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
@@ -65,7 +63,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
   if file_exists
     let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
     if etag ==# file_etag
-      return line_with_anchor .. file_path .. first_line .. strip_to_link
+      return line_with_anchor .. file_path .. strip_to_link
     else
       call delete(file_path)
     endif
@@ -73,11 +71,11 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
 
   let content_size = matchstr(page_headers, 'Content-Length: \zs\d\+\ze')
   if content_size < s:cacheable_size
-    return curl_get .. line_with_anchor .. first_line .. strip_to_link
+    return curl_get .. line_with_anchor .. strip_to_link
   endif
 
   let save_file  = "tee " .. s:cache_dir .. etag .. "==" .. a:file_tail .. " | "
-  return curl_get .. save_file .. line_with_anchor .. first_line .. strip_to_link
+  return curl_get .. save_file .. line_with_anchor .. strip_to_link
 endfunction
 
 
@@ -161,12 +159,8 @@ endfunction
 
 
 function! s:Source(query) abort
-  " TODO: since version 5.0.17.13 hoogle properly restrict output of json with --count and --json flags
-  " and this operation a little bit faster and use less resources then current restriction with `head`.
-  " So should rewrite this after some time.
-  let hoogle = printf("%s --json %s 2> /dev/null | ", s:hoogle_path, shellescape(a:query))
+  let hoogle = printf("%s --json --count=%s %s 2> /dev/null | ", s:hoogle_path, s:count, shellescape(a:query))
   let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null | "
-  let items_number = "head -n " .. s:count .. " | "
   let add_path = "jq -c '. | setpath([\"fzfhquery\"]; if .module.name == null then .item else .module.name + \" \" + .item end)' | "
   let remove_duplicates = "awk -F 'fzfhquery' '!seen[$NF]++' | "
   let save_file = "tee " .. s:file .. " | "
@@ -174,7 +168,7 @@ function! s:Source(query) abort
   let awk_orange = "{ printf \"\033[33m\"$1\"\033[0m\"; $1=\"\"; print $0}"
   let awk_green = "{ printf \"\033[32m\"$1\"\033[0m\"; $1=\"\"; print $0 }"
   let colorize = "awk '{ if ($1 == \"package\" || $1 == \"module\") " .. awk_orange .. "else " .. awk_green .. "}'"
-  return hoogle .. jq_stream .. items_number .. add_path .. remove_duplicates .. save_file .. fzf_lines .. colorize
+  return hoogle .. jq_stream .. add_path .. remove_duplicates .. save_file .. fzf_lines .. colorize
 endfunction
 
 
