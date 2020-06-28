@@ -29,6 +29,7 @@ if !isdirectory(s:cache_dir)
 endif
 let s:file = s:cache_dir .. 'query.json'
 let s:source_file = s:cache_dir .. 'source.html'
+let s:blank_text = "-- There is no source for this item"
 
 " ----------------------------------------------------------
 " Hoogle
@@ -79,7 +80,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
 endfunction
 
 
-function! s:PreviewSourceCode(link) abort
+function! s:PreviewSourceCode(link, item) abort
   " We can only get source link from request that have anchor
   " so for module and package items just open default browser with a link
   if a:link !~ '#'
@@ -108,12 +109,12 @@ function! s:PreviewSourceCode(link) abort
     let response.module_name = matchstr(source_tail, 'src/\zs.\{-1,}\ze\.html#')
   endif
 
-  call s:OpenPreviewWindow(response)
+  call s:OpenPreviewWindow(response, a:item)
 endfunction
 
 
-function! s:OpenPreviewWindow(dict) abort
-  let source_text = get(a:dict, "text", "-- There is no source for this item")
+function! s:OpenPreviewWindow(dict, item) abort
+  let source_text = get(a:dict, "text", s:blank_text)
 
   pclose
   execute 'silent! pedit +setlocal\ buftype=nofile\ nobuflisted\ ' ..
@@ -124,6 +125,10 @@ function! s:OpenPreviewWindow(dict) abort
   execute "silent! 0put =source_text"
   execute "resize " .. get(a:dict, "preview_height", s:preview_height)
   call cursor(get(a:dict, "linenr", 1), 1)
+  if line(".") == 1 && source_text != s:blank_text
+    let pattern = '\<' .. trim(substitute(a:item, '.\{-}\s', '', ''))
+    call search(escape(pattern, '['))
+  endif
   execute "normal z\<CR>"
   call s:Message('Done')
   nnoremap <silent><buffer> q <C-w>P:pclose<CR>
@@ -153,7 +158,7 @@ function! s:Handler(bang, lines) abort
     let link = system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
                             \ item,
                             \ s:file))
-    call s:PreviewSourceCode(link)
+    call s:PreviewSourceCode(link, item)
   endif
 endfunction
 

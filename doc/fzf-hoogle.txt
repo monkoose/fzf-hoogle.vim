@@ -1,6 +1,6 @@
 *fzf-hoogle.txt*   (neo)vim plugin that uses fzf for previewing hoogle search results
 
-Version: 1.1.0
+Version: 1.2.0
 Author: monkoose <https://github.com/monkoose>
 License: MIT license
 
@@ -32,7 +32,7 @@ REQUIREMENTS                                         *fzf-hoogle-requirements*
     `fzf` fuzzy finder (https://github.com/junegunn/fzf)
     `jq` JSON processor (https://github.com/stedolan/jq)
     `curl` CLI tool for transferring data (https://github.com/curl/curl)
-    Also `sed`, `tee`, `awk` and `head` CLI tools.
+    Also `sed`, `tee` and `awk` CLI tools.
   Vim version~
     8.1+
   Neovim version~
