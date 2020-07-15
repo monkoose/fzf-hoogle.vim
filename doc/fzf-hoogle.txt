@@ -1,6 +1,6 @@
 *fzf-hoogle.txt*   (neo)vim plugin that uses fzf for previewing hoogle search results
 
-Version: 1.2.0
+Version: 2.0.0
 Author: monkoose <https://github.com/monkoose>
 License: MIT license
 
@@ -19,8 +19,7 @@ CONTENTS                                                 *fzf-hoogle-contents*
 INTRODUCTION                                         *fzf-hoogle-introduction*
 
 fzf-hoogle provides a convenient way to preview hoogle search database
-results and with help of `curl` to open source code in the preview window.
-Because it uses `fzf` as fuzzy-finder it is easy to filter results too.
+results. Because it uses `fzf` as fuzzy-finder it is easy to filter results too.
 
 ==============================================================================
 REQUIREMENTS                                         *fzf-hoogle-requirements*
@@ -31,8 +30,7 @@ REQUIREMENTS                                         *fzf-hoogle-requirements*
     `hoogle` with generated database (https://github.com/ndmitchell/hoogle)
     `fzf` fuzzy finder (https://github.com/junegunn/fzf)
     `jq` JSON processor (https://github.com/stedolan/jq)
-    `curl` CLI tool for transferring data (https://github.com/curl/curl)
-    Also `sed`, `tee` and `awk` CLI tools.
+    Also `tee` and `awk` CLI tools.
   Vim version~
     8.1+
   Neovim version~
@@ -52,11 +50,9 @@ USAGE                                                       *fzf-hoogle-usage*
   Inside fzf window~
         `Enter` - reopens fzf window with current entered filter as {query} to
         |:Hoogle| command.
-        `Alt-s` - for package or module opens the default OS browser with link
-        to the documentation. Check |g:hoogle_open_link| variable if you have
-        problems with opening documentation in the browser.
-        For other items that have links to source code it tries to open this
-        source code in the preview window.
+        `Alt-s` - opens the default OS browser with link to the documentation.
+        Check |g:hoogle_open_link| variable if you have problems with opening
+        documentation in the browser.
         `Crl-j` and `Ctrl-k` - select next/previous line. Works if these
         bindings weren't changed in the fzf config.
         `Esc` or `Ctrl-c` - closes fzf window.
@@ -112,11 +108,6 @@ g:hoogle_path                                                  *g:hoogle_path*
         Path to hoogle executable.
         `Default is 'hoogle'`
 
-g:hoogle_preview_height                              *g:hoogle_preview_height*
-
-        Height of the preview window with source code.
-        `Default is 22`
-
 g:hoogle_fzf_window                                      *g:hoogle_fzf_window*
 
         Size and position of the fzf window. To change the size of the
@@ -128,7 +119,8 @@ g:hoogle_fzf_window                                      *g:hoogle_fzf_window*
 g:hoogle_fzf_header                                      *g:hoogle_fzf_header*
 
         Fzf window header text.
-        `Default is "'enter' - research with query  'alt-s' - source code"`
+        `Default is "'enter' - restart with the query`
+                    `'alt-s' - source code"`
 
 g:hoogle_fzf_preview                                    *g:hoogle_fzf_preview*
 
@@ -148,27 +140,6 @@ g:hoogle_open_link                                        *g:hoogle_open_link*
         CLI tool to open links in the browser. macOS users should change it
         to `'open'`, for Linux users this should work out of the box.
         `Default is 'xdg-open'`
-
-g:hoogle_allow_cache                                    *g:hoogle_allow_cache*
-
-        Allows caching feature. Set to `0` to disable it.
-        `Default is 1`
-
-g:hoogle_cache_dir                                        *g:hoogle_cache_dir*
-
-        Path to the cache directory. Should end with the forward slash.
-        Even if cache is disabled this directory is used for some temporary
-        files.
-        `Default is '~/.cache/fzf-hoogle/'`
-
-g:hoogle_cacheable_size                              *g:hoogle_cacheable_size*
-
-        Minimal size of the documentation pages that should be cached.
-        These variables are used only for documentation pages (that processes
-        for finding links to source code), because source code pages rarely
-        exceed 500K. Size in kilobytes. Set it to `0` to cache all documentation
-        pages.
-        `Default is 500`
 
 g:hoogle_enable_messages                            *g:hoogle_enable_messages*
 
@@ -209,9 +180,6 @@ Credits to Junegunn Choi (https://github.com/junegunn) for his incredible tool
 
 Credits to Neil Mitchell (https://github.com/ndmitchell) for his Haskell
 packages hoogle, hlint and others.
-
-And last one to Tim Pope (https://github.com/tpope), fzf-hoogle uses some
-functions from his plugin `vim-unimpaired` to encode/decode HTML text and URLs.
 
 ==============================================================================
 vim:tw=78:ft=help:norl:fen:
