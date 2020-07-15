@@ -77,7 +77,7 @@ augroup END
 | `g:hoogle_fzf_header`      | Change fzf window header.                                                       | 'enter - research with query  alt-s - source code' |
 | `g:hoogle_fzf_preview`     | Change fzf preview split.                                                       | `'right:60%:wrap'`                                 |
 | `g:hoogle_count`           | Restrict fzf count lines by this number.                                        | `500`                                              |
-| `g:hoogle_open_link`       | CLI tool to open a link in the default browser. On macOs change it to `'open'`  | `'xdg-open'` if it is executable, else `''`        |
+| `g:hoogle_open_link`       | CLI tool to open a link in the default browser. On macOS change it to `'open'`  | `'xdg-open'` if it is executable, else `''`        |
 | `g:hoogle_allow_cache`     | Activates/deactivates caching.                                                  | `1`                                                |
 | `g:hoogle_cache_dir`       | Location of the cache directory, it should end with a slash.                    | `'~/.cache/fzf-hoogle/'`                           |
 | `g:hoogle_cacheable_size`  | Cache only pages whose size exceeds this option. Size in kilobytes.<sup>2</sup> | `500`                                              |
@@ -85,7 +85,7 @@ augroup END
 
 **1** - for neovim you can change floating window size by changing parameters of `hoogle#floatwindow(rows, columns)`
 
-**2** - cache only documentation pages, soruce pages rarely exceed 500K
+**2** - cache only documentation pages, source pages rarely exceed 500K
 
 
 ## License
