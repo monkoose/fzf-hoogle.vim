@@ -1,35 +1,37 @@
+" Note: for strings use '' when possible and "" if only there is
+" a need to use string constants or ' inside string `:h expr-quote`
 " ----------------------------------------------------------
 " Options
 " ----------------------------------------------------------
 
 let s:is_nvim = has('nvim')
 if s:is_nvim
-  let s:window = get(g:, "hoogle_fzf_window", {"window": "call hoogle#floatwindow(32, 132)"})
+  let s:window = get(g:, 'hoogle_fzf_window', {'window': 'call hoogle#floatwindow(32, 132)'})
 else
-  let s:window = get(g:, "hoogle_fzf_window", {"down": "50%"})
+  let s:window = get(g:, 'hoogle_fzf_window', {'down': '50%'})
 endif
 
-let s:hoogle_path = get(g:, "hoogle_path", "hoogle")
-let s:preview_height = get(g:, "hoogle_preview_height", 22)
-let s:count = get(g:, "hoogle_count", 500)
-let s:header = get(g:, "hoogle_fzf_header",
+let s:hoogle_path = get(g:, 'hoogle_path', 'hoogle')
+let s:preview_height = get(g:, 'hoogle_preview_height', 22)
+let s:count = get(g:, 'hoogle_count', 500)
+let s:header = get(g:, 'hoogle_fzf_header',
       \ printf("\x1b[35m%s\x1b[m", 'enter') .. ' - research with query  ' ..
       \ printf("\x1b[35m%s\x1b[m", 'alt-s') .. " - source code\n ")
-let s:fzf_preview = get(g:, "hoogle_fzf_preview", "right:60%:wrap")
-let s:open_tool = get(g:, "hoogle_open_link", executable("xdg-open") ? "xdg-open" : "")
-let s:cacheable_size = get(g:, "hoogle_cacheable_size", 500) * 1000
+let s:fzf_preview = get(g:, 'hoogle_fzf_preview', 'right:60%:wrap')
+let s:open_tool = get(g:, 'hoogle_open_link', executable('xdg-open') ? 'xdg-open' : '')
+let s:cacheable_size = get(g:, 'hoogle_cacheable_size', 500) * 1000
 let s:preview_handler = expand('<sfile>:h:h') .. '/bin/preview.sh'
-let s:enable_messages = get(g:, "hoogle_enable_messages", 1)
+let s:enable_messages = get(g:, 'hoogle_enable_messages', 1)
 
 " Cache only documentation pages, because source code pages rarely exceed 500K
-let s:allow_cache = get(g:, "hoogle_allow_cache", 1)
-let s:cache_dir = get(g:, "hoogle_cache_dir", $HOME .. "/.cache/fzf-hoogle/")
+let s:allow_cache = get(g:, 'hoogle_allow_cache', 1)
+let s:cache_dir = get(g:, 'hoogle_cache_dir', $HOME .. '/.cache/fzf-hoogle/')
 if !isdirectory(s:cache_dir)
-  call mkdir(s:cache_dir, "p")
+  call mkdir(s:cache_dir, 'p')
 endif
 let s:file = s:cache_dir .. 'query.json'
 let s:source_file = s:cache_dir .. 'source.html'
-let s:blank_text = "-- There is no source for this item"
+let s:blank_text = '-- There is no source for this item'
 
 " ----------------------------------------------------------
 " Hoogle
@@ -39,7 +41,7 @@ function! s:Message(text) abort
   redraw!
   if s:enable_messages
     echohl WarningMsg
-    echo "fzf-hoogle: "
+    echo 'fzf-hoogle: '
     echohl None
     echon a:text
   endif
@@ -48,7 +50,7 @@ endfunction
 
 function! s:GetSourceTail(page, anchor, file_tail) abort
   let anchor = trim(a:anchor)
-  let curl_get = "curl -sL -m 10 " .. a:page .. " | "
+  let curl_get = printf('curl -sL -m 10 %s | ', a:page)
   let line_with_anchor = "grep -oP -m 1 'id=\"" .. anchor .. "\".*?class=\"link\"' "
   let strip_to_link = "| sed 's/^.*href=\"\\(.*\\)\" class=\"link\"/\\1/'"
 
@@ -56,11 +58,10 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
     return curl_get .. line_with_anchor .. strip_to_link
   endif
 
-  let file_path = glob(s:cache_dir .. "*" .. "==" .. a:file_tail)
-  let file_exists = file_path != ""
-  let page_headers = system("curl -sIL " .. a:page)
+  let file_path = glob(printf('%s*==%s', s:cache_dir, a:file_tail))
+  let file_exists = file_path != ''
+  let page_headers = system('curl -sIL ' .. a:page)
   let etag = matchstr(page_headers, 'ETag: "\zs\w\+\ze"')
-
   if file_exists
     let file_etag = matchstr(file_path, '/\zs\w\+\ze==')
     if etag ==# file_etag
@@ -75,7 +76,7 @@ function! s:GetSourceTail(page, anchor, file_tail) abort
     return curl_get .. line_with_anchor .. strip_to_link
   endif
 
-  let save_file  = "tee " .. s:cache_dir .. etag .. "==" .. a:file_tail .. " | "
+  let save_file  = printf('tee %s%s==%s | ', s:cache_dir, etag, a:file_tail)
   return curl_get .. save_file .. line_with_anchor .. strip_to_link
 endfunction
 
@@ -85,7 +86,7 @@ function! s:PreviewSourceCode(link, item) abort
   " so for module and package items just open default browser with a link
   if a:link !~ '#'
     if s:open_tool != ''
-      silent! execute '!' .. s:open_tool .. ' ' .. a:link .. '" &> /dev/null &"'
+      silent! execute printf('!%s %s &> /dev/null &', s:open_tool, a:link)
       call s:Message('The link was sent to a default browser')
     endif
     return
@@ -94,17 +95,17 @@ function! s:PreviewSourceCode(link, item) abort
   call s:Message('Locating source file...')
   let response = {}
   let [page, anchor] = split(a:link, '#')
-  let [source_head, file_tail] = split(page, "/docs/")
+  let [source_head, file_tail] = split(page, '/docs/')
   let source_tail = trim(system(s:GetSourceTail(page, anchor, file_tail)))
-  let source_link = source_head .. "/docs/" .. source_tail
+  let source_link = source_head .. '/docs/' .. source_tail
   if source_link =~ '#'
     let [source_page, source_anchor] = split(source_link, '#')
     let source_anchor = hoogle#url#encode(hoogle#url#decode(source_anchor))
     call s:Message('Downloading source file...')
-    let text = systemlist("curl -sL -m 10 " .. source_page)
+    let text = systemlist('curl -sL -m 10 ' .. source_page)
     let line_index = match(text, 'name="' .. source_anchor .. '"')
     let response.linenr = line_index >= 0 ? line_index + 1 : 1
-    let response.text = hoogle#url#htmldecode(join(text, "\n"))
+    let response.text = map(text, 'hoogle#url#htmldecode(v:val)')
     let response.preview_height = s:preview_height
     let response.module_name = matchstr(source_tail, 'src/\zs.\{-1,}\ze\.html#')
   endif
@@ -114,18 +115,16 @@ endfunction
 
 
 function! s:OpenPreviewWindow(dict, item) abort
-  let source_text = get(a:dict, "text", s:blank_text)
-
+  let source_text = get(a:dict, 'text', s:blank_text)
   pclose
   execute 'silent! pedit +setlocal\ buftype=nofile\ nobuflisted\ ' ..
           \ 'noswapfile\ bufhidden=wipe\ filetype=hoogle\ syntax=haskell ' ..
-          \ get(a:dict, "module_name", "hoogle")
-
+          \ get(a:dict, 'module_name', 'hoogle')
   execute "normal! \<C-w>P"
-  execute "silent! 0put =source_text"
-  execute "resize " .. get(a:dict, "preview_height", s:preview_height)
-  call cursor(get(a:dict, "linenr", 1), 1)
-  if line(".") == 1 && source_text != s:blank_text
+  call setline(1, source_text)
+  execute 'resize ' .. get(a:dict, 'preview_height', s:preview_height)
+  call cursor(get(a:dict, 'linenr', 1), 1)
+  if line('.') == 1 && getline('.') != s:blank_text
     let pattern = '\<' .. trim(substitute(a:item, '.\{-}\s', '', ''))
     call search(escape(pattern, '['))
   endif
@@ -147,7 +146,7 @@ function! s:Handler(bang, lines) abort
   if keypress ==? 'enter'
     let query = a:lines[0]
     call hoogle#run(query, a:bang)
-    " fzf on neovim for some reason can't start in insert mode from previous fzf window
+    " fzf on neovim for some reason can't start in insert mode from the previous fzf window
     " there is workaround for this
     if s:is_nvim
       call feedkeys('i', 'n')
@@ -164,15 +163,15 @@ endfunction
 
 
 function! s:Source(query) abort
-  let hoogle = printf("%s --json --count=%s %s 2> /dev/null | ", s:hoogle_path, s:count, shellescape(a:query))
+  let hoogle = printf('%s --json --count=%s %s 2> /dev/null | ', s:hoogle_path, s:count, shellescape(a:query))
   let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null | "
   let add_path = "jq -c '. | setpath([\"fzfhquery\"]; if .module.name == null then .item else .module.name + \" \" + .item end)' | "
   let remove_duplicates = "awk -F 'fzfhquery' '!seen[$NF]++' | "
-  let save_file = "tee " .. s:file .. " | "
+  let save_file = 'tee ' .. s:file .. ' | '
   let fzf_lines = "jq -r '.fzfhquery' | "
-  let awk_orange = "{ printf \"\033[33m\"$1\"\033[0m\"; $1=\"\"; print $0}"
-  let awk_green = "{ printf \"\033[32m\"$1\"\033[0m\"; $1=\"\"; print $0 }"
-  let colorize = "awk '{ if ($1 == \"package\" || $1 == \"module\") " .. awk_orange .. "else " .. awk_green .. "}'"
+  let awk_orange = '{ printf "\033[33m"$1"\033[0m"; $1=""; print $0}'
+  let awk_green = '{ printf "\033[32m"$1"\033[0m"; $1=""; print $0 }'
+  let colorize = "awk '{ if ($1 == \"package\" || $1 == \"module\") " .. awk_orange .. 'else ' .. awk_green .. "}'"
   return hoogle .. jq_stream .. add_path .. remove_duplicates .. save_file .. fzf_lines .. colorize
 endfunction
 
