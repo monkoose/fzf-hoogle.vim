@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 
-if [ ! -r "$1" ]; then
-  echo "$(tput setaf 1)fzf-hoogle temporary file not found $(tput setaf 3)${1}$(tput sgr0)"
-  exit 1
-fi
-
 # json item from temporary file with help of fzf {n} ($3)
 LINE="sed -n $(($3+1))p $1"
+JQ="jq -r"
 
-eval "$LINE | jq -r '.package.name // empty' | sed 's/^/$(tput setaf 4)/; s/$/$(tput sgr0)/'"
-eval "$LINE | jq -r '.module.name // empty' | sed 's/^/$(tput setaf 2)/; s/$/$(tput sgr0)/'"
-eval "$LINE | jq -r '.item' | sed 's/^/$(tput setaf 11)/; s/$/$(tput sgr0)\n/' "
-eval "$LINE | jq -r '.docs' | sed 's/<pre>/$(tput setaf 8)/g; s/<\/pre>/$(tput sgr0)/g; s/<[^>]*>//g; s/&amp;/\&/g; s/&gt;/>/g; s/&lt;/</g'"
+package="$($LINE | $JQ '.package.name // empty')"
+if [[ -n "$package" ]]; then
+  tput setaf 4
+  echo "$package"
+  tput sgr0
+  tput setaf 2
+  eval "$LINE | $JQ '.module.name // empty'"
+  tput sgr0
+  echo ''
+fi
+tput setaf 11
+eval "$LINE | $JQ '.item'"
+tput sgr0
+echo ''
+eval "$LINE | $JQ '.docs' | sed 's/<pre>/$(tput setaf 8)/g; s/<\/pre>/$(tput sgr0)/g; s/<[^>]*>//g; s/&amp;/\&/g; s/&gt;/>/g; s/&lt;/</g'"
