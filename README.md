@@ -1,7 +1,7 @@
 # fzf-hoogle.vim (works only on Linux and macOS)
 
 (neo)vim plugin that uses fzf for previewing hoogle search results
-![fzf-hoogle.vim in action](https://github.com/monkoose/fzf-hoogle-images/blob/master/fzf-hoogle-action.gif?raw=true)
+![preview image fzf-hoogle.vim](https://github.com/monkoose/fzf-hoogle-images/blob/master/fzf-hoogle.jpg?raw=true)
 
 ## Requirements
 
