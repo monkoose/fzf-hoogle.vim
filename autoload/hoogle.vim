@@ -76,8 +76,8 @@ function! s:Handler(bang, lines) abort
   if keypress ==? 'enter'
     let query = a:lines[0]
     call hoogle#run(query, a:bang)
-    " fzf in neovim for some reason can't start in insert mode from the previous fzf window
-    if s:is_nvim
+    " fzf window on neovim version <0.5 can't start in insert mode from the previous fzf window
+    if s:is_nvim && !has('nvim-0.5.0')
       call feedkeys('i', 'n')
     endif
     return
