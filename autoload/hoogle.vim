@@ -13,9 +13,14 @@ endif
 
 let s:hoogle_path = get(g:, 'hoogle_path', 'hoogle')
 let s:count = get(g:, 'hoogle_count', 500)
+let s:open_browser = get(g:, 'hoogle_fzf_open_browser', 'alt-s')
+let s:copy_type = get(g:, 'hoogle_fzf_copy_type', 'alt-x')
+let s:copy_import = get(g:, 'hoogle_fzf_copy_import', 'alt-c')
 let s:header = get(g:, 'hoogle_fzf_header',
       \ printf("\x1b[35m%s\x1b[m", 'enter') .. " - restart with the query\n" ..
-      \ printf("\x1b[35m%s\x1b[m", 'alt-s') .. " - open in a browser\n ")
+      \ printf("\x1b[35m%s\x1b[m", s:open_browser) .. " - open in a browser\n" ..
+      \ printf("\x1b[35m%s\x1b[m", s:copy_type) .. " - copy type annotation\n" ..
+      \ printf("\x1b[35m%s\x1b[m", s:copy_import) .. " - copy import statement\n ")
 let s:fzf_preview = get(g:, 'hoogle_fzf_preview', 'right:60%:wrap')
 let s:open_tool = get(g:, 'hoogle_open_link', executable('xdg-open') ? 'xdg-open' : '')
 let s:enable_messages = get(g:, 'hoogle_enable_messages', 1)
@@ -35,7 +40,7 @@ function! hoogle#run(query, fullscreen) abort
       \ 'options': [
             \ '--no-multi',
             \ '--print-query',
-            \ '--expect=enter,alt-s',
+            \ printf('--expect=enter,%s,%s,%s', s:open_browser, s:copy_type, s:copy_import),
             \ '--tiebreak=begin',
             \ '--ansi',
             \ '--exact',
@@ -81,13 +86,22 @@ function! s:Handler(bang, lines) abort
       call feedkeys('i', 'n')
     endif
     return
-  elseif keypress ==? 'alt-s'
+  elseif keypress ==? s:open_browser
     let item = a:lines[2]
     let link = trim(system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
                                 \ item,
                                 \ s:cache_file)))
     silent! execute printf('!%s %s &> /dev/null &', s:open_tool, shellescape(link, 1))
-    call s:Message('The link was sent to a default browser')
+    call s:Message('The link have been sent to a default browser')
+  elseif keypress ==? s:copy_type
+    let type = substitute(a:lines[2], '.\{-}\s\ze.*', '', '')
+    call setreg('"', type, 'l')
+    call s:Message('The type annotation have been copied')
+  elseif keypress ==? s:copy_import
+    let alist = split(a:lines[2])
+    let import = 'import ' .. alist[0] .. ' (' .. alist[1] .. ')'
+    call setreg('"', import, 'l')
+    call s:Message('The import statement have been copied')
   endif
 endfunction
 
