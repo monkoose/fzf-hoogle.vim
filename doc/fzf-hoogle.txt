@@ -53,6 +53,8 @@ USAGE                                                       *fzf-hoogle-usage*
         `Alt-s` - opens the default OS browser with link to the documentation.
         Check |g:hoogle_open_link| variable if you have problems with opening
         documentation in the browser.
+        `Alt-x` - copy type annotation into default register.
+        `Alt-c` - copy import statement into default register.
         `Crl-j` and `Ctrl-k` - select next/previous line. Works if these
         bindings weren't changed in the fzf config.
         `Esc` or `Ctrl-c` - closes fzf window.
@@ -147,6 +149,24 @@ g:hoogle_enable_messages                            *g:hoogle_enable_messages*
         Set to `0` to disable them.
         `Default is 1`
 
+g:hoogle_fzf_open_browser                          *g:hoogle_fzf_open_browser*
+
+        Shortcut for opening documentation in a browser. Available shortcuts can
+        be found in the fzf manual.
+        `Default is 'alt-s'`
+
+g:hoogle_fzf_copy_type                                *g:hoogle_fzf_copy_type*
+
+        Shortcut for copying type annotation into default register.
+        Paste it with |p|.
+        `Default is 'alt-x'`
+
+g:hoogle_fzf_copy_import                            *g:hoogle_fzf_copy_import*
+
+        Shortcut for copying import statement into default register.
+        Paste it with |p|.
+        `Default is 'alt-c'`
+
 ------------------------------------------------------------------------------
 FZF RECOMMENDATIONS                         *g:fzf-hoogle-fzf-recommendations*
 
@@ -176,7 +196,7 @@ Read `man fzf` for it.
 CREDITS                                                   *fzf-hoogle-credits*
 
 Credits to Junegunn Choi (https://github.com/junegunn) for his incredible tool
-`fzf`, without it this plugin will not exist.
+`fzf`, without it this plugin would not exist.
 
 Credits to Neil Mitchell (https://github.com/ndmitchell) for his Haskell
 packages hoogle, hlint and others.

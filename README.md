@@ -40,6 +40,10 @@ If you don't know how to properly search with hoogle, then look at the [hoogle d
 `alt-s` to open defalut browser with documentation. If it doesn't work (perhaps if you are on macOS), then
 change `g:hoogle_open_link` option to open links with the CLI tool.
 
+`alt-x` to copy type annotation into default register. Paste it just with `p`.
+
+`alt-c` to copy import statement into default register.
+
 `Esc` or `ctrl-c` to close fzf window.
 
 You can open `:Hoogle` appended with a word under the cursor with this command. Use a key combination that
@@ -60,16 +64,19 @@ augroup END
 
 ## Options
 
-| Variable                   | Description                                                                     | Default                                            |
-|----------------------------|---------------------------------------------------------------------------------|----------------------------------------------------|
-| `g:loaded_hoogle`          | Any value deactivates the plugin.                                               |                                                    |
-| `g:hoogle_path`            | Path to hoogle executable.                                                      | `'hoogle'`                                         |
-| `g:hoogle_fzf_window`      | Change fzf window.<sup>1</sup>                                                  | neovim - `{"window": "call hoogle#floatwindow(32, 132)"}`. vim - `{'down': '50%'}` |
-| `g:hoogle_fzf_header`      | Change fzf window header.                                                       | `'enter - restart with the query  alt-s - open in a browser'` |
-| `g:hoogle_fzf_preview`     | Change fzf preview split.                                                       | `'right:60%:wrap'`                                 |
-| `g:hoogle_count`           | Maximum number of results by hoogle search.                                     | `500`                                              |
-| `g:hoogle_open_link`       | CLI tool to open a link in the default browser. On macOS change it to `'open'`  | `'xdg-open'` if it is executable, else `''`        |
-| `g:hoogle_enable_messages` | Activates/deactivates echoing of the fzf-hoogle messages.                       | `1`                                                |
+| Variable                    | Description                                                                     | Default                                            |
+|-----------------------------|---------------------------------------------------------------------------------|----------------------------------------------------|
+| `g:loaded_hoogle`           | Any value deactivates the plugin.                                               |                                                    |
+| `g:hoogle_path`             | Path to hoogle executable.                                                      | `'hoogle'`                                         |
+| `g:hoogle_fzf_window`       | Change fzf window.<sup>1</sup>                                                  | neovim - `{"window": "call hoogle#floatwindow(32, 132)"}`. vim - `{'down': '50%'}` |
+| `g:hoogle_fzf_header`       | Change fzf window header.                                                       | `'enter - restart with the query  alt-s - open in a browser  alt-x - copy type annotation  alt-c - copy import statement'` |
+| `g:hoogle_fzf_preview`      | Change fzf preview split.                                                       | `'right:60%:wrap'`                                 |
+| `g:hoogle_fzf_open_browser` | Shortcut for opening documentation in a browser.                                | `'alt-s'`                                          |
+| `g:hoogle_fzf_copy_type`    | Shortcut for copying type annotation.                                           | `'alt-x'`                                          |
+| `g:hoogle_fzf_copy_import`  | Shortcut for copying import statement.                                          | `'alt-c'`                                          |
+| `g:hoogle_count`            | Maximum number of results by hoogle search.                                     | `500`                                              |
+| `g:hoogle_open_link`        | CLI tool to open a link in the default browser. On macOS change it to `'open'`  | `'xdg-open'` if it is executable, else `''`        |
+| `g:hoogle_enable_messages`  | Activates/deactivates echoing of the fzf-hoogle messages.                       | `1`                                                |
 
 **1** - for neovim you can change floating window size by changing parameters of `hoogle#floatwindow(rows, columns)`
 
