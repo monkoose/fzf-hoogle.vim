@@ -18,4 +18,4 @@ tput setaf 11
 eval "$LINE | $JQ '.item'"
 tput sgr0
 echo ''
-eval "$LINE | $JQ '.docs' | sed 's/<pre>/$(tput setaf 8)/g; s/<\/pre>/$(tput sgr0)/g; s/<[^>]*>//g; s/&amp;/\&/g; s/&gt;/>/g; s/&lt;/</g'"
+eval "$LINE | $JQ '.docs' | sed 's/<pre>/$(tput setaf 6)/g; s/<\/pre>/$(tput sgr0)/g; s/<[^>]*>//g; s/&amp;/\&/g; s/&gt;/>/g; s/&lt;/</g'"
