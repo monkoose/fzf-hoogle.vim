@@ -92,16 +92,16 @@ function! s:Handler(bang, lines) abort
                                 \ item,
                                 \ s:cache_file)))
     silent! execute printf('!%s %s &> /dev/null &', s:open_tool, shellescape(link, 1))
-    call s:Message('The link have been sent to a default browser')
+    call s:Message('The link was sent to a default browser')
   elseif keypress ==? s:copy_type
     let type = substitute(a:lines[2], '.\{-}\s\ze.*', '', '')
     call setreg('"', type, 'l')
-    call s:Message('The type annotation have been copied')
+    call s:Message('The type annotation was copied')
   elseif keypress ==? s:copy_import
     let alist = split(a:lines[2])
     let import = 'import ' .. alist[0] .. ' (' .. alist[1] .. ')'
     call setreg('"', import, 'l')
-    call s:Message('The import statement have been copied')
+    call s:Message('The import statement was copied')
   endif
 endfunction
 
