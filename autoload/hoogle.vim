@@ -26,7 +26,7 @@ let s:open_tool = get(g:, 'hoogle_open_link', executable('xdg-open') ? 'xdg-open
 let s:enable_messages = get(g:, 'hoogle_enable_messages', 1)
 let s:hoogle_fzf_dir = expand('<sfile>:h:h')
 let s:preview_handler = s:hoogle_fzf_dir .. '/bin/preview.sh'
-let s:cache_file = s:hoogle_fzf_dir .. '/hoogle_cache.json'
+let s:cache_file = get(g:, 'hoogle_fzf_cache_file', s:hoogle_fzf_dir .. '/hoogle_cache.json')
 
 " ----------------------------------------------------------
 " Hoogle
