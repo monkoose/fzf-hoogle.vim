@@ -37,7 +37,7 @@ If you don't know how to properly search with hoogle, then look at the [hoogle d
 
 `enter` to start new search with the current query.
 
-`alt-s` to open defalut browser with documentation. If it doesn't work (perhaps if you are on macOS), then
+`alt-s` to open default browser with documentation. If it doesn't work (perhaps if you are on macOS), then
 change `g:hoogle_open_link` option to open links with the CLI tool.
 
 `alt-x` to copy type annotation into default register. Paste it just with `p`.
