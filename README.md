@@ -68,6 +68,7 @@ augroup END
 |-----------------------------|---------------------------------------------------------------------------------|----------------------------------------------------|
 | `g:loaded_hoogle`           | Any value deactivates the plugin.                                               |                                                    |
 | `g:hoogle_path`             | Path to hoogle executable.                                                      | `'hoogle'`                                         |
+| `g:hoogle_fzf_cache_file`   | Path to the internal fzf-hoogle cache file.                                     | `'./hoogle_cache.json'`                            |
 | `g:hoogle_fzf_window`       | Change fzf window.<sup>1</sup>                                                  | neovim - `{"window": "call hoogle#floatwindow(32, 132)"}`. vim - `{'down': '50%'}` |
 | `g:hoogle_fzf_header`       | Change fzf window header.                                                       | `'enter - restart with the query  alt-s - open in a browser  alt-x - copy type annotation  alt-c - copy import statement'` |
 | `g:hoogle_fzf_preview`      | Change fzf preview split.                                                       | `'right:60%:wrap'`                                 |
