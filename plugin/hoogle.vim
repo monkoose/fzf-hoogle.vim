@@ -4,12 +4,12 @@ endif
 let g:loaded_hoogle = 1
 
 if !executable('hoogle')
-    echo 'fzf-hoogle: `hoogle is not installed. Plugin disabled`'
+    echom 'fzf-hoogle: `hoogle is not installed. Plugin disabled`'
     finish
 endif
 
 if !executable('jq')
-    echo 'fzf-hoogle: `jq` is not installed. Plugin disabled.'
+    echom 'fzf-hoogle: `jq` is not installed. Plugin disabled.'
     finish
 endif
 
