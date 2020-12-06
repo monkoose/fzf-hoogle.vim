@@ -8,6 +8,13 @@ if !executable('hoogle')
     finish
 endif
 
+call system('hoogle')
+if v:shell_error != 0 
+    echom 'fzf-hoogle: `empty hoogle invocation failed - could be that database is not generated`'
+    finish
+endif
+
+
 if !executable('jq')
     echom 'fzf-hoogle: `jq` is not installed. Plugin disabled.'
     finish
