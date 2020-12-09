@@ -4,7 +4,7 @@ endif
 let g:loaded_hoogle = 1
 
 if !executable('hoogle')
-    echom 'fzf-hoogle: `hoogle is not installed. Plugin disabled`'
+    echom 'fzf-hoogle: `hoogle` is not installed. Plugin disabled.'
     finish
 endif
 
