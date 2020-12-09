@@ -11,7 +11,11 @@ fzf-hoogle.txt	fzf-hoogle.txt	/*fzf-hoogle.txt*
 g:fzf-hoogle-fzf-recommendations	fzf-hoogle.txt	/*g:fzf-hoogle-fzf-recommendations*
 g:hoogle_count	fzf-hoogle.txt	/*g:hoogle_count*
 g:hoogle_enable_messages	fzf-hoogle.txt	/*g:hoogle_enable_messages*
+g:hoogle_fzf_cache_file	fzf-hoogle.txt	/*g:hoogle_fzf_cache_file*
+g:hoogle_fzf_copy_import	fzf-hoogle.txt	/*g:hoogle_fzf_copy_import*
+g:hoogle_fzf_copy_type	fzf-hoogle.txt	/*g:hoogle_fzf_copy_type*
 g:hoogle_fzf_header	fzf-hoogle.txt	/*g:hoogle_fzf_header*
+g:hoogle_fzf_open_browser	fzf-hoogle.txt	/*g:hoogle_fzf_open_browser*
 g:hoogle_fzf_preview	fzf-hoogle.txt	/*g:hoogle_fzf_preview*
 g:hoogle_fzf_window	fzf-hoogle.txt	/*g:hoogle_fzf_window*
 g:hoogle_open_link	fzf-hoogle.txt	/*g:hoogle_open_link*

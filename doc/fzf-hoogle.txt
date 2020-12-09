@@ -1,6 +1,6 @@
 *fzf-hoogle.txt*   (neo)vim plugin that uses fzf for previewing hoogle search results
 
-Version: 2.0.0
+Version: 2.3.0
 Author: monkoose <https://github.com/monkoose>
 License: MIT license
 
@@ -166,6 +166,12 @@ g:hoogle_fzf_copy_import                            *g:hoogle_fzf_copy_import*
         Shortcut for copying import statement into default register.
         Paste it with |p|.
         `Default is 'alt-c'`
+
+g:hoogle_fzf_cache_file                              *g:hoogle_fzf_cache_file*
+
+        Path to the fzf-hoogle cache file. This file is used to speed up json
+        processing for the preview window of fzf.
+        `Default is '{plugin_directory}/hoogle_cache.json'`
 
 ------------------------------------------------------------------------------
 FZF RECOMMENDATIONS                         *g:fzf-hoogle-fzf-recommendations*

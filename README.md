@@ -68,7 +68,6 @@ augroup END
 |-----------------------------|---------------------------------------------------------------------------------|----------------------------------------------------|
 | `g:loaded_hoogle`           | Any value deactivates the plugin.                                               |                                                    |
 | `g:hoogle_path`             | Path to hoogle executable.                                                      | `'hoogle'`                                         |
-| `g:hoogle_fzf_cache_file`   | Path to the internal fzf-hoogle cache file.                                     | `'./hoogle_cache.json'`                            |
 | `g:hoogle_fzf_window`       | Change fzf window.<sup>1</sup>                                                  | neovim - `{"window": "call hoogle#floatwindow(32, 132)"}`. vim - `{'down': '50%'}` |
 | `g:hoogle_fzf_header`       | Change fzf window header.                                                       | `'enter - restart with the query  alt-s - open in a browser  alt-x - copy type annotation  alt-c - copy import statement'` |
 | `g:hoogle_fzf_preview`      | Change fzf preview split.                                                       | `'right:60%:wrap'`                                 |
@@ -78,8 +77,10 @@ augroup END
 | `g:hoogle_count`            | Maximum number of results by hoogle search.                                     | `500`                                              |
 | `g:hoogle_open_link`        | CLI tool to open a link in the default browser. On macOS change it to `'open'`  | `'xdg-open'` if it is executable, else `''`        |
 | `g:hoogle_enable_messages`  | Activates/deactivates echoing of the fzf-hoogle messages.                       | `1`                                                |
+| `g:hoogle_fzf_cache_file`   | Path to the internal fzf-hoogle cache file.<sup>2</sup>                         | `'{plugin_directory}/hoogle_cache.json'`           |
 
 **1** - for neovim you can change floating window size by changing parameters of `hoogle#floatwindow(rows, columns)`
+**2** - Required to configure if fzf preview window just shows `sed` errors.
 
 ## License
 MIT
