@@ -80,6 +80,7 @@ augroup END
 | `g:hoogle_fzf_cache_file`   | Path to the internal fzf-hoogle cache file.<sup>2</sup>                         | `'{plugin_directory}/hoogle_cache.json'`           |
 
 **1** - for neovim you can change floating window size by changing parameters of `hoogle#floatwindow(rows, columns)`
+
 **2** - Required to configure if fzf preview window just shows `sed` errors.
 
 ## License
