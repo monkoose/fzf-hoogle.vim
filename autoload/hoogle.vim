@@ -73,6 +73,7 @@ endfunction
 
 function! s:Handler(bang, lines) abort
   " exit if empty for <Esc> hit
+  echom string(a:lines)
   if a:lines == [] || a:lines == ['','','']
     return
   endif
@@ -86,22 +87,24 @@ function! s:Handler(bang, lines) abort
       call feedkeys('i', 'n')
     endif
     return
-  elseif keypress ==? s:open_browser
-    let item = a:lines[2]
-    let link = trim(system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
-                                \ item,
-                                \ s:cache_file)))
-    silent! execute printf('!%s %s &> /dev/null &', s:open_tool, shellescape(link, 1))
-    call s:Message('The link was sent to a default browser')
-  elseif keypress ==? s:copy_type
-    let type = substitute(a:lines[2], '.\{-}\s\ze.*', '', '')
-    call setreg('"', type, 'l')
-    call s:Message('The type annotation was copied')
-  elseif keypress ==? s:copy_import
-    let alist = split(a:lines[2])
-    let import = 'import ' .. alist[0] .. ' (' .. alist[1] .. ')'
-    call setreg('"', import, 'l')
-    call s:Message('The import statement was copied')
+  elseif len(a:lines) > 2
+    if keypress ==? s:open_browser
+      let item = a:lines[2]
+      let link = trim(system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
+                                  \ item,
+                                  \ s:cache_file)))
+      silent! execute printf('!%s %s &> /dev/null &', s:open_tool, shellescape(link, 1))
+      call s:Message('The link was sent to a default browser')
+    elseif keypress ==? s:copy_type
+      let type = substitute(a:lines[2], '.\{-}\s\ze.*', '', '')
+      call setreg('"', type, 'l')
+      call s:Message('The type annotation was copied')
+    elseif keypress ==? s:copy_import
+      let alist = split(a:lines[2])
+      let import = 'import ' .. alist[0] .. ' (' .. alist[1] .. ')'
+      call setreg('"', import, 'l')
+      call s:Message('The import statement was copied')
+    endif
   endif
 endfunction
 
