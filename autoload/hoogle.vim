@@ -72,7 +72,6 @@ endfunction
 
 function! s:Handler(bang, lines) abort
   " exit if empty for <Esc> hit
-  echom string(a:lines)
   if a:lines == [] || a:lines == ['','','']
     return
   endif
