@@ -11,7 +11,6 @@ else
   let s:window = get(g:, 'hoogle_fzf_window', {'down': '50%'})
 endif
 
-let s:hoogle_path = get(g:, 'hoogle_path', 'hoogle')
 let s:count = get(g:, 'hoogle_count', 500)
 let s:open_browser = get(g:, 'hoogle_fzf_open_browser', 'alt-s')
 let s:copy_type = get(g:, 'hoogle_fzf_copy_type', 'alt-x')
@@ -58,7 +57,7 @@ endfunction
 
 
 function! s:Source(query) abort
-  let hoogle = printf('%s --json --count=%s %s 2> /dev/null | ', s:hoogle_path, s:count, shellescape(a:query))
+  let hoogle = printf('%s --json --count=%s %s 2> /dev/null | ', g:hoogle_path, s:count, shellescape(a:query))
   let jq_stream = "jq -cn --stream 'fromstream(1|truncate_stream(inputs))' 2> /dev/null | "
   let add_path = "jq -c '. | setpath([\"fzfhquery\"]; if .module.name == null then .item else .module.name + \" \" + .item end)' | "
   let remove_duplicates = "awk -F 'fzfhquery' '!seen[$NF]++' | "
