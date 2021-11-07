@@ -7,7 +7,7 @@ JQ="jq -r"
 package="$($LINE | $JQ '.package.name // empty')"
 if [[ -n "$package" ]]; then
   tput setaf 4
-  echo "$package"
+  echo -n "$package "
   tput sgr0
   tput setaf 2
   eval "$LINE | $JQ '.module.name // empty'"
