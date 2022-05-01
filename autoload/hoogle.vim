@@ -91,7 +91,7 @@ function! s:Handler(bang, lines) abort
       let link = trim(system(printf("jq -r --arg a \"%s\" '. | select(.fzfhquery == \$a) | .url' %s",
                                   \ item,
                                   \ s:cache_file)))
-      call system(s:open_tool .. " " .. shellescape(link, 1))
+      call system(s:open_tool .. " '" .. link .. "'")
       call s:Message('The link was sent to a default browser')
     elseif keypress ==? s:copy_type
       let type = substitute(a:lines[2], '.\{-}\s\ze.*', '', '')
